@@ -1,0 +1,9 @@
+langgraph
+langchain
+google-generativeai
+beautifulsoup4
+requests
+pandas
+openpyxl
+python-dotenv
+tabulate
