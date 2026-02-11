@@ -338,7 +338,7 @@ if __name__ == '__main__':
     print("="*60)
     print(f"📊 Products in database: {len(PRODUCT_DB) if PRODUCT_DB is not None else 0}")
 
-    print("🌐 Starting server at http://localhost:5000")
+    print("🌐 Starting server at http://localhost:5001")
     print("="*60 + "\n")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

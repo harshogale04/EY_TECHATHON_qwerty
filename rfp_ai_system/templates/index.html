@@ -3,899 +3,1006 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RFP Tender Analysis Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>TenderIntel — RFP Analysis Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg-dark: #0f172a;
-            --bg-light: #f8fafc;
-            --text-dark: #1e293b;
-            --text-light: #64748b;
-            --border: #e2e8f0;
-            --shadow: rgba(15, 23, 42, 0.08);
+            --ink: #0a0a0f;
+            --ink-2: #111118;
+            --ink-3: #1a1a24;
+            --ink-4: #252535;
+            --gold: #c9a84c;
+            --gold-light: #e8c96b;
+            --gold-dim: rgba(201, 168, 76, 0.15);
+            --gold-border: rgba(201, 168, 76, 0.25);
+            --cream: #f5efe0;
+            --cream-dim: rgba(245, 239, 224, 0.7);
+            --mist: rgba(255,255,255,0.05);
+            --success: #5dbf8f;
+            --warning: #e8a845;
+            --danger: #e05b5b;
+            --text: #e8e0d0;
+            --text-dim: rgba(232, 224, 208, 0.5);
+            --text-muted: rgba(232, 224, 208, 0.3);
         }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--ink);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1200px;
+        /* ─── NOISE TEXTURE ─── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        /* ─── AMBIENT GLOW ─── */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 600px;
+            background: radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page-wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 860px;
             margin: 0 auto;
-            padding: 2rem 1.5rem;
+            padding: 0 1.5rem 5rem;
         }
 
-        /* Header */
+        /* ─── HEADER ─── */
         header {
+            padding: 4rem 0 3.5rem;
             text-align: center;
-            margin-bottom: 3rem;
-            padding: 3rem 0;
-        }
-
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .logo-icon {
-            font-size: 2.5rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
-        }
-
-        .tagline {
-            font-size: 1rem;
-            color: var(--text-light);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        /* Main Card */
-        .main-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 1px 3px var(--shadow);
-            overflow: hidden;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border);
-            background: var(--bg-light);
-        }
-
-        .tab {
-            flex: 1;
-            padding: 1.25rem;
-            font-size: 0.95rem;
-            font-weight: 600;
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            transition: all 0.2s;
             position: relative;
         }
 
-        .tab:hover {
-            color: var(--primary);
-            background: white;
+        .header-rule {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, var(--gold));
+            margin: 0 auto 2rem;
+            animation: fadeDown 0.8s ease forwards;
         }
 
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand {
+            display: inline-block;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.4em;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeUp 0.7s 0.3s ease forwards;
+        }
+
+        .headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.8rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            color: var(--cream);
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeUp 0.7s 0.45s ease forwards;
+        }
+
+        .headline em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .sub {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            letter-spacing: 0.02em;
+            opacity: 0;
+            animation: fadeUp 0.7s 0.6s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── MAIN PANEL ─── */
+        .panel {
+            background: var(--ink-2);
+            border: 1px solid var(--gold-border);
+            border-radius: 2px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeUp 0.7s 0.75s ease forwards;
+            position: relative;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        /* ─── CORNER ACCENTS ─── */
+        .panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 32px; height: 32px;
+            border-bottom: 1px solid var(--gold);
+            border-right: 1px solid var(--gold);
+            pointer-events: none;
+        }
+
+        /* ─── TABS ─── */
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--gold-border);
+        }
+
+        .tab {
+            padding: 1.2rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .tab:first-child { border-right: 1px solid var(--gold-border); }
+
+        .tab:hover { color: var(--cream); background: var(--mist); }
+
         .tab.active {
-            color: var(--primary);
-            background: white;
+            color: var(--gold);
+            background: var(--gold-dim);
         }
 
         .tab.active::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary);
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: var(--gold);
         }
 
+        .tab-dot {
+            display: inline-block;
+            width: 5px; height: 5px;
+            background: currentColor;
+            border-radius: 50%;
+            margin-right: 0.6rem;
+            vertical-align: middle;
+            margin-bottom: 1px;
+        }
+
+        /* ─── FORM AREA ─── */
         .tab-content {
             display: none;
             padding: 2.5rem;
         }
 
-        .tab-content.active {
-            display: block;
+        .tab-content.active { display: block; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
         }
 
-        /* Form Styles */
         .form-group {
             margin-bottom: 1.5rem;
         }
 
+        .form-group.full { grid-column: 1 / -1; }
+
         label {
             display: block;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.6rem;
         }
+
+        label .req { color: var(--danger); margin-left: 2px; }
 
         input[type="text"],
         input[type="url"],
         input[type="date"] {
             width: 100%;
-            padding: 0.875rem 1rem;
-            font-size: 0.95rem;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-            background: white;
-        }
-
-        input[type="text"]:focus,
-        input[type="url"]:focus,
-        input[type="date"]:focus {
+            padding: 0.85rem 1rem;
+            background: var(--ink-3);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 2px;
+            color: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 300;
+            transition: border-color 0.2s, box-shadow 0.2s;
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        /* File Upload */
-        .file-upload {
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.4) sepia(1) saturate(1.5) hue-rotate(10deg);
+            cursor: pointer;
+        }
+
+        input::placeholder { color: var(--text-muted); }
+
+        input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px var(--gold-dim), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+
+        /* ─── FILE UPLOAD ─── */
+        .drop-zone {
             position: relative;
-            border: 2px dashed var(--border);
-            border-radius: 12px;
+            border: 1px dashed rgba(201,168,76,0.3);
+            border-radius: 2px;
             padding: 3rem 2rem;
             text-align: center;
-            transition: all 0.2s;
             cursor: pointer;
-            background: var(--bg-light);
+            transition: all 0.25s;
+            background: var(--ink-3);
+            overflow: hidden;
         }
 
-        .file-upload:hover {
-            border-color: var(--primary);
-            background: rgba(37, 99, 235, 0.02);
-        }
-
-        .file-upload.dragover {
-            border-color: var(--primary);
-            background: rgba(37, 99, 235, 0.05);
-        }
-
-        .file-upload input[type="file"] {
+        .drop-zone::before {
+            content: '';
             position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06), transparent 70%);
             opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .drop-zone:hover::before,
+        .drop-zone.over::before { opacity: 1; }
+
+        .drop-zone:hover,
+        .drop-zone.over {
+            border-color: var(--gold);
+        }
+
+        .drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
             width: 100%;
             height: 100%;
-            cursor: pointer;
-            top: 0;
-            left: 0;
         }
 
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+        .drop-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            display: block;
             opacity: 0.5;
         }
 
-        .upload-text {
-            font-size: 0.95rem;
-            color: var(--text-light);
+        .drop-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-weight: 300;
+        }
+
+        .drop-label strong {
+            color: var(--gold);
             font-weight: 500;
         }
 
-        .upload-text strong {
-            color: var(--primary);
-            font-weight: 600;
+        .file-chosen {
+            margin-top: 0.75rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--gold);
         }
 
-        .file-name {
-            margin-top: 1rem;
-            color: var(--primary);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 0.875rem 1.75rem;
-            font-size: 0.95rem;
-            font-weight: 600;
+        /* ─── SUBMIT BUTTON ─── */
+        .btn-submit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            margin-top: 0.5rem;
+            background: var(--gold);
+            color: var(--ink);
             border: none;
-            border-radius: 8px;
+            border-radius: 2px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
             cursor: pointer;
             transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s, opacity 0.4s;
         }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
+        .btn-submit:hover {
+            background: var(--gold-light);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 8px 24px rgba(201,168,76,0.25);
         }
 
-        .btn-secondary {
-            background: var(--secondary);
-            color: white;
+        .btn-submit:active::after {
+            width: 300px; height: 300px; opacity: 0;
         }
 
-        .btn-secondary:hover {
-            background: #059669;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
+        .btn-submit:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
-            transform: none !important;
+            transform: none;
+            box-shadow: none;
         }
 
-        /* Loading Spinner */
+        .arrow { font-size: 1rem; }
+
+        /* ─── ERROR ─── */
+        .error-bar {
+            display: none;
+            margin: 0 2.5rem;
+            padding: 0.85rem 1rem;
+            background: rgba(224, 91, 91, 0.1);
+            border: 1px solid rgba(224, 91, 91, 0.3);
+            border-left: 3px solid var(--danger);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: #f08080;
+            letter-spacing: 0.03em;
+        }
+
+        .error-bar.show { display: block; }
+
+        /* ─── LOADING ─── */
         .loading {
             display: none;
+            padding: 5rem 2.5rem;
             text-align: center;
-            padding: 4rem 2rem;
         }
 
-        .loading.active {
-            display: block;
+        .loading.show { display: block; }
+
+        .scan-line {
+            width: 200px;
+            height: 2px;
+            background: var(--ink-4);
+            margin: 0 auto 2rem;
+            border-radius: 1px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 1.5rem;
+        .scan-line::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -60%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            animation: scan 1.4s ease-in-out infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes scan {
+            from { left: -60%; }
+            to { left: 100%; }
         }
 
-        .loading-text {
-            font-size: 1rem;
-            color: var(--text-light);
-            font-weight: 500;
+        .loading-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-muted);
         }
 
-        /* Results Section */
+        .loading-label span {
+            color: var(--gold);
+            animation: blink 1.2s step-end infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ─── RESULTS ─── */
         .results {
             display: none;
-            padding: 2.5rem;
         }
 
-        .results.active {
-            display: block;
-        }
+        .results.show { display: block; }
 
-        .results-header {
+        .results-head {
+            padding: 2rem 2.5rem 1.5rem;
+            border-bottom: 1px solid var(--gold-border);
             display: flex;
+            align-items: flex-end;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 2px solid var(--border);
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .results-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
         }
 
         .results-title {
-            font-size: 1.75rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
             font-weight: 700;
-            color: var(--text-dark);
+            color: var(--cream);
         }
 
-        .score-badge {
+        /* Score Dial */
+        .score-wrap {
+            text-align: right;
+        }
+
+        .score-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--gold);
+        }
+
+        .score-num.high { color: var(--success); }
+        .score-num.medium { color: var(--warning); }
+        .score-num.low { color: var(--danger); }
+
+        .score-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-bottom: 1px solid var(--gold-border);
+        }
+
+        .stat {
+            padding: 1.75rem 1.5rem;
+            border-right: 1px solid var(--gold-border);
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .stat:last-child { border-right: none; }
+
+        .stat:hover { background: var(--mist); }
+
+        .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--cream);
+            margin-bottom: 0.35rem;
+            line-height: 1;
+        }
+
+        .stat-num.success { color: var(--success); }
+        .stat-num.warning { color: var(--warning); }
+        .stat-num.danger { color: var(--danger); }
+
+        .stat-key {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .stat-bar {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 1s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* Actions */
+        .results-actions {
+            padding: 1.75rem 2.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-act {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
             padding: 0.75rem 1.5rem;
-            background: var(--primary);
-            color: white;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .score-badge.high {
-            background: var(--secondary);
-        }
-
-        .score-badge.medium {
-            background: var(--warning);
-        }
-
-        .score-badge.low {
-            background: var(--danger);
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 2px solid var(--border);
-            transition: all 0.2s;
-        }
-
-        .stat-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px var(--shadow);
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid;
         }
 
-        .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--text-dark);
+        .btn-act-gold {
+            background: var(--gold);
+            color: var(--ink);
+            border-color: var(--gold);
         }
 
-        .stat-value.success {
-            color: var(--secondary);
+        .btn-act-gold:hover {
+            background: var(--gold-light);
+            border-color: var(--gold-light);
+            box-shadow: 0 4px 16px rgba(201,168,76,0.2);
         }
 
-        .stat-value.warning {
-            color: var(--warning);
+        .btn-act-outline {
+            background: transparent;
+            color: var(--text-dim);
+            border-color: rgba(255,255,255,0.12);
         }
 
-        .stat-value.danger {
-            color: var(--danger);
+        .btn-act-outline:hover {
+            color: var(--cream);
+            border-color: rgba(255,255,255,0.25);
+            background: var(--mist);
         }
 
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-
-        /* Error Message */
-        .error-message {
-            background: #fee;
-            border-left: 4px solid var(--danger);
-            padding: 1rem 1.25rem;
-            border-radius: 8px;
-            color: #b91c1c;
-            margin-bottom: 1.5rem;
-            display: none;
-        }
-
-        .error-message.active {
-            display: block;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.875rem;
-            }
-
-            .tab-content,
-            .results {
-                padding: 1.5rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .results-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-        }
-
-        /* Success State */
-        .success-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .success-message {
+        /* ─── FOOTER ─── */
+        .footer-note {
             text-align: center;
-            padding: 2rem;
+            padding-top: 2.5rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
         }
 
-        .success-message h3 {
-            font-size: 1.5rem;
-            color: var(--secondary);
-            margin-bottom: 0.5rem;
+        .footer-note span {
+            color: var(--gold);
+            opacity: 0.6;
         }
 
-        .success-message p {
-            color: var(--text-light);
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 680px) {
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .stat:nth-child(2) { border-right: none; }
+            .tab-content { padding: 1.75rem; }
+            .results-head { flex-direction: column; align-items: flex-start; }
+            .score-wrap { text-align: left; }
+            .score-num { font-size: 2.5rem; }
+            .results-actions { padding: 1.5rem; }
+        }
+
+        @media (max-width: 420px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat { border-right: none; }
+        }
+
+        /* ─── STAGGER ANIMATION FOR STATS ─── */
+        .stat {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.4s, transform 0.4s, background 0.2s;
+        }
+
+        .stat.visible {
+            opacity: 1;
+            transform: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <span class="logo-icon">📊</span>
-            </div>
-            <h1>RFP Tender Analysis</h1>
-            <p class="tagline">AI-Powered Procurement Intelligence</p>
-        </header>
+<div class="page-wrap">
+    <header>
+        <div class="header-rule"></div>
+        <p class="brand">TenderIntel</p>
+        <h1 class="headline">RFP Tender<br><em>Intelligence</em></h1>
+        <p class="sub">AI-powered procurement analysis &amp; bid scoring</p>
+    </header>
 
-        <div class="main-card">
-            <!-- Error Message -->
-            <div class="error-message" id="errorMessage"></div>
+    <div class="panel">
 
-            <!-- Tabs -->
-            <div class="tabs">
-                <button class="tab active" data-tab="url">🌐 Analyze URL</button>
-                <button class="tab" data-tab="pdf">📄 Upload PDF</button>
-            </div>
+        <!-- Error -->
+        <div class="error-bar" id="errorBar"></div>
 
-            <!-- URL Analysis Tab -->
-            <div class="tab-content active" id="urlTab">
-                <form id="urlForm">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="url">
+                <span class="tab-dot"></span>Analyze URL
+            </button>
+            <button class="tab" data-tab="pdf">
+                <span class="tab-dot"></span>Upload PDF
+            </button>
+        </div>
+
+        <!-- URL Tab -->
+        <div class="tab-content active" id="urlTab">
+            <form id="urlForm">
+                <div class="form-group">
+                    <label>Tender URL <span class="req">*</span></label>
+                    <input type="url" id="tenderUrl" placeholder="https://example.gov/tender-document" required>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="tenderUrl">Tender URL *</label>
-                        <input 
-                            type="url" 
-                            id="tenderUrl" 
-                            name="url" 
-                            placeholder="https://example.com/tender-document"
-                            required
-                        >
+                        <label>Tender Name</label>
+                        <input type="text" id="urlTenderName" placeholder="Railway Electrification 2025">
                     </div>
-
                     <div class="form-group">
-                        <label for="urlTenderName">Tender Name (Optional)</label>
-                        <input 
-                            type="text" 
-                            id="urlTenderName" 
-                            name="name" 
-                            placeholder="e.g., Railway Electrification Project 2025"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="urlIssuer">Issuing Authority (Optional)</label>
-                        <input 
-                            type="text" 
-                            id="urlIssuer" 
-                            name="issuer" 
-                            placeholder="e.g., Indian Railways"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="urlDeadline">Submission Deadline (Optional)</label>
-                        <input 
-                            type="date" 
-                            id="urlDeadline" 
-                            name="deadline"
-                        >
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        🚀 Analyze Tender
-                    </button>
-                </form>
-            </div>
-
-            <!-- PDF Upload Tab -->
-            <div class="tab-content" id="pdfTab">
-                <form id="pdfForm">
-                    <div class="form-group">
-                        <label>Upload Tender Document *</label>
-                        <div class="file-upload" id="fileUpload">
-                            <input 
-                                type="file" 
-                                id="pdfFile" 
-                                name="file" 
-                                accept=".pdf"
-                                required
-                            >
-                            <div class="upload-icon">📤</div>
-                            <div class="upload-text">
-                                <strong>Drop PDF here</strong> or click to browse
-                            </div>
-                            <div class="file-name" id="fileName"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="pdfTenderName">Tender Name (Optional)</label>
-                        <input 
-                            type="text" 
-                            id="pdfTenderName" 
-                            name="name" 
-                            placeholder="e.g., Metro Rail Cable Procurement"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="pdfIssuer">Issuing Authority (Optional)</label>
-                        <input 
-                            type="text" 
-                            id="pdfIssuer" 
-                            name="issuer" 
-                            placeholder="e.g., Delhi Metro Rail Corporation"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="pdfDeadline">Submission Deadline (Optional)</label>
-                        <input 
-                            type="date" 
-                            id="pdfDeadline" 
-                            name="deadline"
-                        >
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        🚀 Analyze Tender
-                    </button>
-                </form>
-            </div>
-
-            <!-- Loading State -->
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <div class="loading-text">Analyzing tender document...</div>
-            </div>
-
-            <!-- Results Section -->
-            <div class="results" id="results">
-                <div class="results-header">
-                    <h2 class="results-title">Analysis Results</h2>
-                    <div class="score-badge" id="scoreBadge">
-                        <span>Score:</span>
-                        <span id="overallScore">0%</span>
+                        <label>Issuing Authority</label>
+                        <input type="text" id="urlIssuer" placeholder="Indian Railways">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Submission Deadline</label>
+                    <input type="date" id="urlDeadline">
+                </div>
+                <button type="submit" class="btn-submit">
+                    <span>Run Analysis</span>
+                    <span class="arrow">→</span>
+                </button>
+            </form>
+        </div>
 
-                <!-- Stats Grid -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Estimated Price</div>
-                        <div class="stat-value" id="estimatedPrice">₹0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Matched Products</div>
-                        <div class="stat-value" id="matchedProducts">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Technical Match</div>
-                        <div class="stat-value" id="technicalMatch">0%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Recommendation</div>
-                        <div class="stat-value" id="recommendation" style="font-size: 1rem;">-</div>
+        <!-- PDF Tab -->
+        <div class="tab-content" id="pdfTab">
+            <form id="pdfForm">
+                <div class="form-group">
+                    <label>Tender Document <span class="req">*</span></label>
+                    <div class="drop-zone" id="dropZone">
+                        <input type="file" id="pdfFile" accept=".pdf" required>
+                        <span class="drop-icon">⬆</span>
+                        <div class="drop-label"><strong>Drop PDF here</strong> or click to browse</div>
+                        <div class="file-chosen" id="fileName"></div>
                     </div>
                 </div>
-
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <button class="btn btn-secondary" id="downloadBtn">
-                        📥 Download Full Report (PDF)
-                    </button>
-                    <button class="btn btn-primary" id="analyzeNewBtn">
-                        🔄 Analyze Another Tender
-                    </button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tender Name</label>
+                        <input type="text" id="pdfTenderName" placeholder="Metro Rail Cable Procurement">
+                    </div>
+                    <div class="form-group">
+                        <label>Issuing Authority</label>
+                        <input type="text" id="pdfIssuer" placeholder="Delhi Metro Rail Corp">
+                    </div>
                 </div>
+                <div class="form-group">
+                    <label>Submission Deadline</label>
+                    <input type="date" id="pdfDeadline">
+                </div>
+                <button type="submit" class="btn-submit">
+                    <span>Run Analysis</span>
+                    <span class="arrow">→</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="scan-line"></div>
+            <div class="loading-label">Processing document<span>_</span></div>
+        </div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+            <div class="results-head">
+                <div>
+                    <div class="results-label">Analysis Complete</div>
+                    <div class="results-title">Bid Assessment</div>
+                </div>
+                <div class="score-wrap">
+                    <div class="score-num" id="overallScore">—</div>
+                    <div class="score-label">Overall Score</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat" style="transition-delay:0.05s">
+                    <div class="stat-num" id="estimatedPrice">₹0</div>
+                    <div class="stat-key">Est. Price</div>
+                    <div class="stat-bar" id="bar0" style="width:0"></div>
+                </div>
+                <div class="stat" style="transition-delay:0.15s">
+                    <div class="stat-num" id="matchedProducts">0</div>
+                    <div class="stat-key">Matched Products</div>
+                    <div class="stat-bar" id="bar1" style="width:0"></div>
+                </div>
+                <div class="stat" style="transition-delay:0.25s">
+                    <div class="stat-num" id="technicalMatch">0%</div>
+                    <div class="stat-key">Technical Match</div>
+                    <div class="stat-bar" id="bar2" style="width:0"></div>
+                </div>
+                <div class="stat" style="transition-delay:0.35s">
+                    <div class="stat-num" id="recommendation" style="font-size:1.1rem;line-height:1.3">—</div>
+                    <div class="stat-key">Recommendation</div>
+                    <div class="stat-bar" id="bar3" style="width:100%"></div>
+                </div>
+            </div>
+
+            <div class="results-actions">
+                <button class="btn-act btn-act-gold" id="downloadBtn">
+                    ↓ Download Report
+                </button>
+                <button class="btn-act btn-act-outline" id="analyzeNewBtn">
+                    ↺ New Analysis
+                </button>
             </div>
         </div>
     </div>
 
-    <script>
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const targetTab = tab.dataset.tab;
-                
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.getElementById(targetTab + 'Tab').classList.add('active');
-            });
+    <p class="footer-note"><span>//</span> TenderIntel · AI-Powered Procurement Intelligence <span>//</span></p>
+</div>
+
+<script>
+    // ─── TABS ───
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const t = tab.dataset.tab;
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(t + 'Tab').classList.add('active');
         });
+    });
 
-        // File upload drag & drop
-        const fileUpload = document.getElementById('fileUpload');
-        const pdfFile = document.getElementById('pdfFile');
-        const fileName = document.getElementById('fileName');
+    // ─── FILE UPLOAD ───
+    const dropZone = document.getElementById('dropZone');
+    const pdfFile = document.getElementById('pdfFile');
+    const fileName = document.getElementById('fileName');
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            fileUpload.addEventListener(eventName, preventDefaults, false);
-        });
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => {
+        dropZone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); });
+    });
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
+    ['dragenter', 'dragover'].forEach(e =>
+        dropZone.addEventListener(e, () => dropZone.classList.add('over'))
+    );
+    ['dragleave', 'drop'].forEach(e =>
+        dropZone.addEventListener(e, () => dropZone.classList.remove('over'))
+    );
+
+    dropZone.addEventListener('drop', e => {
+        if (e.dataTransfer.files.length) {
+            pdfFile.files = e.dataTransfer.files;
+            updateFile();
         }
+    });
 
-        ['dragenter', 'dragover'].forEach(eventName => {
-            fileUpload.addEventListener(eventName, () => {
-                fileUpload.classList.add('dragover');
+    pdfFile.addEventListener('change', updateFile);
+
+    function updateFile() {
+        fileName.textContent = pdfFile.files.length ? `[ ${pdfFile.files[0].name} ]` : '';
+    }
+
+    // ─── ANALYSIS ───
+    let analysisData = null;
+
+    document.getElementById('urlForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        await runAnalysis('url', {
+            url: document.getElementById('tenderUrl').value,
+            name: document.getElementById('urlTenderName').value,
+            issuer: document.getElementById('urlIssuer').value,
+            deadline: document.getElementById('urlDeadline').value
+        });
+    });
+
+    document.getElementById('pdfForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const fd = new FormData();
+        fd.append('file', pdfFile.files[0]);
+        fd.append('name', document.getElementById('pdfTenderName').value);
+        fd.append('issuer', document.getElementById('pdfIssuer').value);
+        fd.append('deadline', document.getElementById('pdfDeadline').value);
+        await runAnalysis('pdf', fd);
+    });
+
+    async function runAnalysis(type, data) {
+        hideTabs();
+        hideResults();
+        clearError();
+        showLoading();
+
+        try {
+            const isJson = !(data instanceof FormData);
+            const res = await fetch(type === 'url' ? '/api/analyze-url' : '/api/analyze-pdf', {
+                method: 'POST',
+                headers: isJson ? { 'Content-Type': 'application/json' } : {},
+                body: isJson ? JSON.stringify(data) : data
             });
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            fileUpload.addEventListener(eventName, () => {
-                fileUpload.classList.remove('dragover');
-            });
-        });
-
-        fileUpload.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            pdfFile.files = files;
-            updateFileName();
-        });
-
-        pdfFile.addEventListener('change', updateFileName);
-
-        function updateFileName() {
-            if (pdfFile.files.length > 0) {
-                fileName.textContent = `📄 ${pdfFile.files[0].name}`;
+            const json = await res.json();
+            if (json.success) {
+                analysisData = json.data;
+                showResults(json.data);
             } else {
-                fileName.textContent = '';
+                showTabs();
+                showError(json.error || 'Analysis failed.');
             }
+        } catch (err) {
+            showTabs();
+            showError('Network error: ' + err.message);
+        } finally {
+            hideLoading();
         }
+    }
 
-        // Global variable to store analysis results
-        let currentAnalysisData = null;
+    function showResults(data) {
+        const score = Math.round(data.score * 100);
+        const scoreEl = document.getElementById('overallScore');
+        scoreEl.textContent = score + '%';
+        scoreEl.className = 'score-num ' + (score >= 75 ? 'high' : score >= 50 ? 'medium' : 'low');
 
-        // Form submission handlers
-        document.getElementById('urlForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                url: document.getElementById('tenderUrl').value,
-                name: document.getElementById('urlTenderName').value,
-                issuer: document.getElementById('urlIssuer').value,
-                deadline: document.getElementById('urlDeadline').value
-            };
-            
-            await analyzeUrl(formData);
-        });
+        document.getElementById('estimatedPrice').textContent =
+            '₹' + Number(data.price).toLocaleString('en-IN');
 
-        document.getElementById('pdfForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData();
-            formData.append('file', pdfFile.files[0]);
-            formData.append('name', document.getElementById('pdfTenderName').value);
-            formData.append('issuer', document.getElementById('pdfIssuer').value);
-            formData.append('deadline', document.getElementById('pdfDeadline').value);
-            
-            await analyzePdf(formData);
-        });
+        const matches = data.technical_matches?.length ?? 0;
+        document.getElementById('matchedProducts').textContent = matches;
 
-        async function analyzeUrl(data) {
-            showLoading();
-            hideError();
-            
-            try {
-                const response = await fetch('/api/analyze-url', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    currentAnalysisData = result.data;
-                    displayResults(result.data);
-                } else {
-                    showError(result.error || 'Analysis failed');
-                }
-            } catch (error) {
-                showError('Network error: ' + error.message);
-            } finally {
-                hideLoading();
-            }
-        }
+        const tech = data.detailed_score?.component_scores?.technical_match ?? 0;
+        document.getElementById('technicalMatch').textContent = Math.round(tech) + '%';
 
-        async function analyzePdf(formData) {
-            showLoading();
-            hideError();
-            
-            try {
-                const response = await fetch('/api/analyze-pdf', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    currentAnalysisData = result.data;
-                    displayResults(result.data);
-                } else {
-                    showError(result.error || 'Analysis failed');
-                }
-            } catch (error) {
-                showError('Network error: ' + error.message);
-            } finally {
-                hideLoading();
-            }
-        }
+        const rec = data.detailed_score?.recommendation ?? 'N/A';
+        const recEl = document.getElementById('recommendation');
+        recEl.textContent = rec;
+        recEl.className = 'stat-num';
+        if (rec.includes('PROCEED') || rec.includes('RECOMMEND')) recEl.classList.add('success');
+        else if (rec.includes('REVIEW')) recEl.classList.add('warning');
+        else if (rec.includes('NOT')) recEl.classList.add('danger');
 
-        function displayResults(data) {
-            // Hide forms, show results
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
+        // Stat bars
+        document.getElementById('bar2').style.width = Math.round(tech) + '%';
+
+        document.getElementById('results').classList.add('show');
+
+        // Stagger in stats
+        setTimeout(() => {
+            document.querySelectorAll('.stat').forEach(s => s.classList.add('visible'));
+        }, 50);
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
+        if (!analysisData) return;
+        try {
+            const res = await fetch('/api/download-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(analysisData)
             });
-            document.getElementById('results').classList.add('active');
-            
-            // Overall score (convert to percentage)
-            const score = Math.round(data.score * 100);
-            document.getElementById('overallScore').textContent = score + '%';
-            
-            // Update score badge color
-            const scoreBadge = document.getElementById('scoreBadge');
-            scoreBadge.className = 'score-badge';
-            if (score >= 75) {
-                scoreBadge.classList.add('high');
-            } else if (score >= 50) {
-                scoreBadge.classList.add('medium');
+            if (res.ok) {
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = Object.assign(document.createElement('a'), {
+                    href: url, download: `tender_report_${Date.now()}.pdf`
+                });
+                document.body.appendChild(a);
+                a.click();
+                URL.revokeObjectURL(url);
+                a.remove();
             } else {
-                scoreBadge.classList.add('low');
+                showError('Failed to generate PDF report.');
             }
-            
-            // Stats
-            document.getElementById('estimatedPrice').textContent = 
-                '₹' + Number(data.price).toLocaleString('en-IN');
-            document.getElementById('matchedProducts').textContent = 
-                data.technical_matches.length;
-            
-            // Technical match from detailed scores
-            const techMatch = data.detailed_score?.component_scores?.technical_match || 0;
-            document.getElementById('technicalMatch').textContent = 
-                Math.round(techMatch) + '%';
-            
-            // Recommendation
-            const recommendation = data.detailed_score?.recommendation || 'N/A';
-            const recElement = document.getElementById('recommendation');
-            recElement.textContent = recommendation;
-            
-            // Style recommendation based on type
-            recElement.className = 'stat-value';
-            if (recommendation.includes('PROCEED') || recommendation.includes('RECOMMEND')) {
-                recElement.classList.add('success');
-            } else if (recommendation.includes('REVIEW')) {
-                recElement.classList.add('warning');
-            } else if (recommendation.includes('NOT')) {
-                recElement.classList.add('danger');
-            }
+        } catch (err) {
+            showError('Download error: ' + err.message);
         }
+    });
 
-        // Download PDF report
-        document.getElementById('downloadBtn').addEventListener('click', async () => {
-            if (!currentAnalysisData) {
-                showError('No analysis data available');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/download-report', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(currentAnalysisData)
-                });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `rfp_analysis_${new Date().getTime()}.pdf`;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                } else {
-                    showError('Failed to generate PDF report');
-                }
-            } catch (error) {
-                showError('Error downloading report: ' + error.message);
-            }
-        });
+    document.getElementById('analyzeNewBtn').addEventListener('click', () => {
+        document.getElementById('urlForm').reset();
+        document.getElementById('pdfForm').reset();
+        fileName.textContent = '';
+        analysisData = null;
+        hideResults();
+        showTabs();
+        document.querySelectorAll('.stat').forEach(s => s.classList.remove('visible'));
+    });
 
-        // Analyze new tender
-        document.getElementById('analyzeNewBtn').addEventListener('click', () => {
-            document.getElementById('urlForm').reset();
-            document.getElementById('pdfForm').reset();
-            fileName.textContent = '';
-            
-            document.getElementById('results').classList.remove('active');
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'block';
-            });
-            document.querySelector('.tab-content.active').style.display = 'block';
-            
-            currentAnalysisData = null;
-        });
-
-        function showLoading() {
-            document.getElementById('loading').classList.add('active');
-        }
-
-        function hideLoading() {
-            document.getElementById('loading').classList.remove('active');
-        }
-
-        function showError(message) {
-            const errorEl = document.getElementById('errorMessage');
-            errorEl.textContent = '⚠️ ' + message;
-            errorEl.classList.add('active');
-        }
-
-        function hideError() {
-            document.getElementById('errorMessage').classList.remove('active');
-        }
-    </script>
+    // ─── UI HELPERS ───
+    function showLoading() { document.getElementById('loading').classList.add('show'); }
+    function hideLoading() { document.getElementById('loading').classList.remove('show'); }
+    function showResults(d) {
+        const score = Math.round(d.score * 100);
+        const scoreEl = document.getElementById('overallScore');
+        scoreEl.textContent = score + '%';
+        scoreEl.className = 'score-num ' + (score >= 75 ? 'high' : score >= 50 ? 'medium' : 'low');
+        document.getElementById('estimatedPrice').textContent = '₹' + Number(d.price).toLocaleString('en-IN');
+        const matches = d.technical_matches?.length ?? 0;
+        document.getElementById('matchedProducts').textContent = matches;
+        const tech = d.detailed_score?.component_scores?.technical_match ?? 0;
+        document.getElementById('technicalMatch').textContent = Math.round(tech) + '%';
+        const rec = d.detailed_score?.recommendation ?? 'N/A';
+        const recEl = document.getElementById('recommendation');
+        recEl.textContent = rec;
+        recEl.className = 'stat-num';
+        if (rec.includes('PROCEED') || rec.includes('RECOMMEND')) recEl.classList.add('success');
+        else if (rec.includes('REVIEW')) recEl.classList.add('warning');
+        else if (rec.includes('NOT')) recEl.classList.add('danger');
+        document.getElementById('bar2').style.width = Math.round(tech) + '%';
+        document.getElementById('results').classList.add('show');
+        setTimeout(() => document.querySelectorAll('.stat').forEach(s => s.classList.add('visible')), 50);
+    }
+    function hideResults() { document.getElementById('results').classList.remove('show'); }
+    function hideTabs() {
+        document.querySelectorAll('.tab-content').forEach(x => x.style.visibility = 'hidden');
+        document.querySelector('.tabs').style.opacity = '0.3';
+        document.querySelector('.tabs').style.pointerEvents = 'none';
+    }
+    function showTabs() {
+        document.querySelectorAll('.tab-content').forEach(x => x.style.visibility = '');
+        document.querySelector('.tabs').style.opacity = '';
+        document.querySelector('.tabs').style.pointerEvents = '';
+    }
+    function showError(msg) {
+        const el = document.getElementById('errorBar');
+        el.textContent = '⚠ ' + msg;
+        el.classList.add('show');
+    }
+    function clearError() {
+        document.getElementById('errorBar').classList.remove('show');
+    }
+</script>
 </body>
 </html>
