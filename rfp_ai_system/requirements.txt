@@ -7,3 +7,9 @@ pandas
 openpyxl
 python-dotenv
 tabulate
+
+Flask==3.0.0
+flask-cors==4.0.0
+PyPDF2==3.0.1
+reportlab==4.0.8
+Werkzeug==3.0.1
