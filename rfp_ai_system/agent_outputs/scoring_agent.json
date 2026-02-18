@@ -1,92 +1,6 @@
 {
-    "scores": [
-        0.7919,
-        0.8188,
-        0.8008,
-        0.8156
-    ],
-    "detailed_scores": [
-        {
-            "final_score": 79.19,
-            "grade": "A (Very Good)",
-            "normalized_score": 0.7919,
-            "component_scores": {
-                "technical_match": 100.0,
-                "price_competitiveness": 41.98,
-                "delivery_capability": 84.27,
-                "compliance": 97.07,
-                "risk_assessment": 65
-            },
-            "weighted_contributions": {
-                "technical_match": 35.0,
-                "price_competitiveness": 10.49,
-                "delivery_capability": 12.64,
-                "compliance": 14.56,
-                "risk_assessment": 6.5
-            },
-            "recommendation": "STRONGLY RECOMMEND - Proceed with bid preparation"
-        },
-        {
-            "final_score": 81.88,
-            "grade": "A (Very Good)",
-            "normalized_score": 0.8188,
-            "component_scores": {
-                "technical_match": 100.0,
-                "price_competitiveness": 52.23,
-                "delivery_capability": 83.73,
-                "compliance": 98.4,
-                "risk_assessment": 65
-            },
-            "weighted_contributions": {
-                "technical_match": 35.0,
-                "price_competitiveness": 13.06,
-                "delivery_capability": 12.56,
-                "compliance": 14.76,
-                "risk_assessment": 6.5
-            },
-            "recommendation": "STRONGLY RECOMMEND - Proceed with bid preparation"
-        },
-        {
-            "final_score": 80.08,
-            "grade": "A (Very Good)",
-            "normalized_score": 0.8008,
-            "component_scores": {
-                "technical_match": 100.0,
-                "price_competitiveness": 43.83,
-                "delivery_capability": 87.47,
-                "compliance": 96.67,
-                "risk_assessment": 65
-            },
-            "weighted_contributions": {
-                "technical_match": 35.0,
-                "price_competitiveness": 10.96,
-                "delivery_capability": 13.12,
-                "compliance": 14.5,
-                "risk_assessment": 6.5
-            },
-            "recommendation": "STRONGLY RECOMMEND - Proceed with bid preparation"
-        },
-        {
-            "final_score": 81.56,
-            "grade": "A (Very Good)",
-            "normalized_score": 0.8156,
-            "component_scores": {
-                "technical_match": 100.0,
-                "price_competitiveness": 50.07,
-                "delivery_capability": 87.33,
-                "compliance": 96.27,
-                "risk_assessment": 65
-            },
-            "weighted_contributions": {
-                "technical_match": 35.0,
-                "price_competitiveness": 12.52,
-                "delivery_capability": 13.1,
-                "compliance": 14.44,
-                "risk_assessment": 6.5
-            },
-            "recommendation": "STRONGLY RECOMMEND - Proceed with bid preparation"
-        }
-    ],
+    "scores": [],
+    "detailed_scores": [],
     "scoring_weights": {
         "technical_match": 0.35,
         "price_competitiveness": 0.25,
@@ -95,5 +9,5 @@
         "risk_score": 0.1
     },
     "scale": "0\u20131 normalized (master agent) + 0\u2013100 detailed",
-    "generated_at": "2026-02-18T06:27:37.852870"
+    "generated_at": "2026-02-18T12:26:19.459754"
 }

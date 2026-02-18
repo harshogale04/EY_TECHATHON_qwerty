@@ -150,6 +150,26 @@ def index():
     """Serve the main web interface"""
     return render_template('index.html')
 
+@app.route("/api/agents/all")
+def get_all_agents():
+    agent_dir = "agent_outputs"
+    agents = {}
+
+    if not os.path.exists(agent_dir):
+        return jsonify({"error": "agent_outputs folder not found"}), 404
+
+    for file in os.listdir(agent_dir):
+        if file.endswith(".json"):
+            agent_name = file.replace(".json", "")
+            with open(os.path.join(agent_dir, file), "r") as f:
+                agents[agent_name] = json.load(f)
+
+    return jsonify(agents)
+
+@app.route("/agents-all")
+def agents_all_page():
+    return render_template("agents_all.html")
+
 
 @app.route('/api/analyze-url', methods=['POST'])
 def analyze_url():

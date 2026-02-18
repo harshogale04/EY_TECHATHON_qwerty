@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TenderIntel — Agent Outputs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ink: #0a0a0f;
+            --ink-2: #111118;
+            --ink-3: #1a1a24;
+            --ink-4: #252535;
+            --gold: #c9a84c;
+            --gold-light: #e8c96b;
+            --gold-dim: rgba(201, 168, 76, 0.15);
+            --gold-border: rgba(201, 168, 76, 0.25);
+            --cream: #f5efe0;
+            --cream-dim: rgba(245, 239, 224, 0.7);
+            --mist: rgba(255,255,255,0.05);
+            --success: #5dbf8f;
+            --warning: #e8a845;
+            --danger: #e05b5b;
+            --text: #e8e0d0;
+            --text-dim: rgba(232, 224, 208, 0.5);
+            --text-muted: rgba(232, 224, 208, 0.3);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--ink);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ─── NOISE TEXTURE ─── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        /* ─── AMBIENT GLOW ─── */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 600px;
+            background: radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page-wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 1.5rem 5rem;
+        }
+
+        /* ─── HEADER ─── */
+        header {
+            padding: 4rem 0 3.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-rule {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, var(--gold));
+            margin: 0 auto 2rem;
+            animation: fadeDown 0.8s ease forwards;
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand {
+            display: inline-block;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.4em;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeUp 0.7s 0.3s ease forwards;
+        }
+
+        .headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.4rem, 5vw, 3.8rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            color: var(--cream);
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeUp 0.7s 0.45s ease forwards;
+        }
+
+        .headline em {
+            font-style: italic;
+            color: var(--gold);
+        }
+
+        .sub {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-weight: 300;
+            letter-spacing: 0.02em;
+            opacity: 0;
+            animation: fadeUp 0.7s 0.6s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── TOOLBAR ─── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 0.7s 0.7s ease forwards;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .agent-count {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .agent-count span {
+            color: var(--gold);
+        }
+
+        .btn-refresh {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--gold-border);
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+
+        .btn-refresh:hover {
+            background: var(--gold);
+            color: var(--ink);
+            box-shadow: 0 4px 16px rgba(201,168,76,0.2);
+        }
+
+        /* ─── AGENT BLOCK ─── */
+        .panel {
+            background: var(--ink-2);
+            border: 1px solid var(--gold-border);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 1.25rem;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s;
+        }
+
+        .panel.visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 24px; height: 24px;
+            border-bottom: 1px solid var(--gold);
+            border-right: 1px solid var(--gold);
+            pointer-events: none;
+        }
+
+        .panel:hover {
+            border-color: rgba(201, 168, 76, 0.45);
+        }
+
+        /* ─── AGENT HEADER ─── */
+        .agent-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: var(--ink-3);
+            border-bottom: 1px solid var(--gold-border);
+            cursor: pointer;
+            user-select: none;
+            gap: 1rem;
+        }
+
+        .agent-header:hover {
+            background: var(--ink-4);
+        }
+
+        .agent-name-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        .agent-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            flex-shrink: 0;
+            box-shadow: 0 0 6px rgba(201,168,76,0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .agent-dot.error { background: var(--danger); box-shadow: 0 0 6px rgba(224,91,91,0.5); }
+        .agent-dot.empty { background: var(--text-muted); box-shadow: none; animation: none; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .agent-name {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            color: var(--cream);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .agent-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .agent-badge {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.6rem;
+            border-radius: 1px;
+            border: 1px solid;
+        }
+
+        .agent-badge.success {
+            color: var(--success);
+            border-color: rgba(93,191,143,0.3);
+            background: rgba(93,191,143,0.08);
+        }
+
+        .agent-badge.error {
+            color: var(--danger);
+            border-color: rgba(224,91,91,0.3);
+            background: rgba(224,91,91,0.08);
+        }
+
+        .agent-badge.empty {
+            color: var(--text-muted);
+            border-color: rgba(255,255,255,0.08);
+            background: transparent;
+        }
+
+        .toggle-icon {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            transition: transform 0.25s;
+            flex-shrink: 0;
+        }
+
+        .panel.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* ─── CODE AREA ─── */
+        .agent-body {
+            display: none;
+            border-top: 1px solid var(--gold-border);
+        }
+
+        .panel.open .agent-body {
+            display: block;
+        }
+
+        pre {
+            margin: 0;
+            padding: 1.5rem;
+            background: var(--ink);
+            overflow-x: auto;
+            max-height: 420px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 300;
+            line-height: 1.75;
+            color: var(--cream-dim);
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold-border) transparent;
+        }
+
+        pre::-webkit-scrollbar { width: 4px; height: 4px; }
+        pre::-webkit-scrollbar-track { background: transparent; }
+        pre::-webkit-scrollbar-thumb { background: var(--gold-border); border-radius: 2px; }
+
+        /* JSON syntax highlight */
+        .json-key { color: var(--gold); }
+        .json-string { color: #a8d8a8; }
+        .json-number { color: #89b4fa; }
+        .json-bool { color: var(--warning); }
+        .json-null { color: var(--text-muted); }
+
+        /* ─── EMPTY / ERROR STATE ─── */
+        .state-msg {
+            padding: 4rem 2.5rem;
+            text-align: center;
+        }
+
+        .state-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+            opacity: 0.4;
+        }
+
+        .state-text {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .state-text.error { color: var(--danger); opacity: 0.8; }
+
+        /* ─── LOADING ─── */
+        .loading-wrap {
+            text-align: center;
+            padding: 5rem 2rem;
+            opacity: 0;
+            animation: fadeUp 0.5s 0.1s ease forwards;
+        }
+
+        .scan-line {
+            width: 200px;
+            height: 2px;
+            background: var(--ink-4);
+            margin: 0 auto 2rem;
+            border-radius: 1px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .scan-line::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -60%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            animation: scan 1.4s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            from { left: -60%; }
+            to { left: 100%; }
+        }
+
+        .loading-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .loading-label span {
+            color: var(--gold);
+            animation: blink 1.2s step-end infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ─── FOOTER ─── */
+        .footer-note {
+            text-align: center;
+            padding-top: 2.5rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+        }
+
+        .footer-note span { color: var(--gold); opacity: 0.6; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 600px) {
+            .agent-name { font-size: 0.72rem; }
+            pre { font-size: 0.72rem; padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+    <header>
+        <div class="header-rule"></div>
+        <p class="brand">TenderIntel</p>
+        <h1 class="headline">Agent<br><em>Intelligence</em></h1>
+        <p class="sub">Live output from all procurement analysis agents</p>
+    </header>
+
+    <div class="toolbar" id="toolbar" style="display:none">
+        <div class="agent-count">Agents loaded: <span id="agentCount">0</span></div>
+        <button class="btn-refresh" id="refreshBtn">↻ Refresh</button>
+    </div>
+
+    <div id="container">
+        <div class="loading-wrap">
+            <div class="scan-line"></div>
+            <div class="loading-label">Loading agent outputs<span>_</span></div>
+        </div>
+    </div>
+
+    <p class="footer-note"><span>//</span> TenderIntel · AI-Powered Procurement Intelligence <span>//</span></p>
+</div>
+
+<script>
+    function syntaxHighlight(json) {
+        const str = JSON.stringify(json, null, 2);
+        return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+            let cls = 'json-number';
+            if (/^"/.test(match)) {
+                cls = /:$/.test(match) ? 'json-key' : 'json-string';
+            } else if (/true|false/.test(match)) {
+                cls = 'json-bool';
+            } else if (/null/.test(match)) {
+                cls = 'json-null';
+            }
+            return `<span class="${cls}">${match}</span>`;
+        });
+    }
+
+    function getBadgeInfo(output) {
+        if (output === null || output === undefined) return { label: 'Empty', cls: 'empty' };
+        if (typeof output === 'object' && output.error) return { label: 'Error', cls: 'error' };
+        return { label: 'OK', cls: 'success' };
+    }
+
+    function getDotClass(output) {
+        if (output === null || output === undefined) return 'empty';
+        if (typeof output === 'object' && output.error) return 'error';
+        return '';
+    }
+
+    function renderAgents(data) {
+        const container = document.getElementById('container');
+        container.innerHTML = '';
+
+        const entries = Object.entries(data);
+
+        if (entries.length === 0) {
+            container.innerHTML = `
+                <div class="panel visible">
+                    <div class="state-msg">
+                        <span class="state-icon">◎</span>
+                        <div class="state-text">No agent outputs available</div>
+                    </div>
+                </div>`;
+            return;
+        }
+
+        document.getElementById('agentCount').textContent = entries.length;
+        document.getElementById('toolbar').style.display = 'flex';
+
+        entries.forEach(([agent, output], i) => {
+            const badge = getBadgeInfo(output);
+            const dotCls = getDotClass(output);
+            const formatted = syntaxHighlight(output);
+
+            const panel = document.createElement('div');
+            panel.className = 'panel';
+            panel.style.transitionDelay = `${i * 0.06}s`;
+            panel.innerHTML = `
+                <div class="agent-header">
+                    <div class="agent-name-wrap">
+                        <div class="agent-dot ${dotCls}"></div>
+                        <div class="agent-name">${agent}</div>
+                    </div>
+                    <div class="agent-meta">
+                        <span class="agent-badge ${badge.cls}">${badge.label}</span>
+                        <span class="toggle-icon">▾</span>
+                    </div>
+                </div>
+                <div class="agent-body">
+                    <pre>${formatted}</pre>
+                </div>`;
+
+            panel.querySelector('.agent-header').addEventListener('click', () => {
+                panel.classList.toggle('open');
+            });
+
+            container.appendChild(panel);
+
+            // Stagger in
+            setTimeout(() => panel.classList.add('visible'), 50 + i * 60);
+        });
+    }
+
+    function load() {
+        const container = document.getElementById('container');
+        container.innerHTML = `
+            <div class="loading-wrap">
+                <div class="scan-line"></div>
+                <div class="loading-label">Loading agent outputs<span>_</span></div>
+            </div>`;
+
+        document.getElementById('toolbar').style.display = 'none';
+
+        fetch('/api/agents/all')
+            .then(res => res.json())
+            .then(data => renderAgents(data))
+            .catch(() => {
+                container.innerHTML = `
+                    <div class="panel visible">
+                        <div class="state-msg">
+                            <span class="state-icon">⚠</span>
+                            <div class="state-text error">Failed to load agent outputs</div>
+                        </div>
+                    </div>`;
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        load();
+        document.getElementById('refreshBtn')?.addEventListener('click', load);
+    });
+</script>
+</body>
+</html>
