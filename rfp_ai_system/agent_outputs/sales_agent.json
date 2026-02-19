@@ -1,64 +1,26 @@
 {
-    "tender_count": 4,
-    "rfps": [
+    "tenders_in_window": 4,
+    "all_tenders": [
         {
-            "projectName": "Distribution Network Upgrade \u2013 Region-5",
-            "issued_by": "Power Grid Corporation of India Ltd (PGCIL)",
-            "category": "Electrical Works",
-            "submissionDeadline": "3/10/2026",
-            "project_overview": "Power Grid Corporation of India Ltd (PGCIL) invites sealed tenders from qualified and experienced cable manufacturers for the supply of Low Tension (LT) distribution cables as part of its distribution network modernization program across twelve (12) districts under Region-5. The project aims to improve reliability, efficiency, and safety of the low-voltage distribution infrastructure.",
-            "scope_of_supply": "3.5 Core LT Distribution Cables (0.4 kV) Quantity: 500 meters Conductor Size: 50 mm\u00b2 Material: Aluminum (Copper alternative acceptable) Insulation: PVC No. of Cores: 3.5 cores (3 power + 1 earth) Armoring: None Rated Voltage: 0.4 kV Temperature Rating: 70\u00b0C 4 Core LT Distribution Cables (0.4 kV) Quantity: 1000 meters Conductor Size: 16 mm\u00b2 Material: Copper Insulation: PVC No. of Cores: 4 cores Armoring: None Rated Voltage: 0.4 kV Temperature Rating: 70\u00b0C",
-            "technical_specifications": "Indian Standards: IS 1554 International Standards: Certification: BIS mandatory",
-            "testing_requirements": "Pre-Delivery Tests Routine insulation test Acceptance testing Type testing (if required) Documentation and certification On-Site Tests Test Cost (\u20b9) Routine Insulation Test 8,000 Acceptance Testing 12,000 Type Test (if required) 20,000 Documentation and Certification 5,000 Total Estimated Cost: \u20b945,000",
-            "delivery_timeline": "Order Placement: Manufacturing Lead Time: days Delivery Date: Installation Completion:",
-            "pricing_details": "Warranty: 10 years performance warranty",
-            "evaluation_criteria": "Technical Compliance: Mandatory Delivery Capability: Required Price Weightage: 40% Certification: BIS mandatory After-Sales Support: 5 years",
-            "submission_format": "Submission Mode: Sealed bid Technical proposal with compliance statement Commercial proposal with detailed pricing schedule Product datasheets and test certificates Company profile and statutory certifications Performance guarantee (2% of total contract value)"
+            "name": "Distribution Network Upgrade \u2013 Region-5",
+            "deadline": "3/10/2026"
         },
         {
-            "projectName": "Four Laning of NH-44 (Bengaluru to Chennai)",
-            "issued_by": "National Highway Authority of India (NHAI)",
-            "category": "Road Construction",
-            "submissionDeadline": "3/30/2026",
-            "project_overview": "The National Highway Authority of India (NHAI) invites sealed bids from eligible Original Equipment Manufacturers (OEMs) for the supply of High Voltage Cables for the Four Laning project of NH-44 (Bengaluru to Chennai). The project covers approximately 250 km and includes toll booths, weighment stations, traffic management centers, and emergency communication systems.",
-            "scope_of_supply": "High Voltage Power Cables (1.1 kV) Quantity: 1000 meters Conductor Size: 240 mm\u00b2 Material: Copper Insulation: XLPE No. of Cores: 4 Armoring: Steel tape Rated Voltage: 1.1 kV Temperature Rating: 90\u00b0C Medium Voltage Cables (0.6 kV) Quantity: 500 meters Conductor Size: 185 mm\u00b2 Material: Copper Insulation: XLPE No. of Cores: 3 Armoring: Steel wire Rated Voltage: 0.6 kV Temperature Rating: 90\u00b0C Low Voltage Distribution Cables (0.4 kV) Quantity: 2000 meters Conductor Size: 50 mm\u00b2 Material: Copper Insulation: PVC No. of Cores: 2 Armoring: None Rated Voltage: 0.4 kV Temperature Rating: 70\u00b0C",
-            "technical_specifications": "Indian Standards: IS 1554 Part 1, IS 1554 Part 2 International Standards: IEC 60228, IEC 60502-1 Certification: BIS mandatory",
-            "testing_requirements": "Pre-Delivery Tests Routine tests on 100% production Type tests on certified samples Material certificates On-Site Tests Test Cost (\u20b9) High Voltage Withstand Test 25,000 Insulation Resistance Measurement 12,000 Tensile Strength Verification 18,000 Mechanical Installation Inspection 15,000 Documentation and Certification 10,000 Total Estimated Cost: \u20b980,000",
-            "delivery_timeline": "Order Placement: 2025-01-05 Manufacturing Lead Time: 45 days Delivery Date: 2025-02-20 Installation Completion: 2025-03-10",
-            "pricing_details": "High Voltage Cable \u2013 per meter Medium Voltage Cable \u2013 per meter Low Voltage Cable \u2013 per meter Testing Cost: \u20b980,000 Warranty: 2 years",
-            "evaluation_criteria": "Technical Compliance: Mandatory Delivery Capability: Required Price Weightage: 40% Certification: BIS mandatory After-Sales Support: 5 years",
-            "submission_format": "Submission Mode: Sealed bid Technical proposal with compliance matrix Commercial proposal with pricing schedule Product datasheets and test certificates Company profile and credentials Bank guarantee (5% of order value)"
+            "name": "Four Laning of NH-44 (Bengaluru to Chennai)",
+            "deadline": "3/30/2026"
         },
         {
-            "projectName": "Underground Metro Rail Expansion \u2013 Corridor A",
-            "issued_by": "Metro Rail Corporation",
-            "category": "Civil Infrastructure",
-            "submissionDeadline": "5/5/2026",
-            "project_overview": "The Metro Rail Corporation invites sealed bids from eligible cable manufacturers for the supply of HT and LT power cables for traction substations, underground stations, and tunnel electrical systems under the Underground Metro Rail Expansion \u2013 Corridor A project. The scope includes traction power substations, underground metro stations, tunnel electrical systems, and auxiliary power distribution networks.",
-            "scope_of_supply": "HT Power Cables (11 kV) Quantity: 1200 meters Conductor Size: 300 mm\u00b2 Material: Copper Insulation: XLPE No. of Cores: 3 cores Armoring: Steel wire Rated Voltage: 11 kV Temperature Rating: 90\u00b0C LT Auxiliary Cables (1.1 kV) Quantity: 900 meters Conductor Size: 35 mm\u00b2 Material: Copper Insulation: PVC No. of Cores: 4 cores Armoring: None Rated Voltage: 1.1 kV Temperature Rating: 70\u00b0C",
-            "technical_specifications": "Indian Standards: IS 7098 International Standards: IEC 60502 Certification: BIS mandatory",
-            "testing_requirements": "Pre-Delivery Tests Routine tests on 100% of production Type tests on certified samples Material certificates for all components Fire resistance testing certificates On-Site Tests Test Cost (\u20b9) High Voltage Test 20,000 Insulation Resistance Test 10,000 Documentation and Certification 8,000 Total Estimated Cost: \u20b938,000",
-            "delivery_timeline": "Order Placement: 2025-02-10 Manufacturing Lead Time: 50 days Delivery Date: 2025-04-10 Installation Completion: 2025-05-05",
-            "pricing_details": "Warranty: Standard 3-year warranty against manufacturing defects",
-            "evaluation_criteria": "Technical Compliance: Mandatory Delivery Capability: Required Price Weightage: 40% Certification: BIS mandatory After-Sales Support: years",
-            "submission_format": "Submission Mode: Sealed bid Technical proposal with compliance matrix Commercial proposal with detailed pricing schedule Product datasheets and test certificates Company profile and certifications Bank guarantee (5% of total order value)"
+            "name": "Underground Metro Rail Expansion \u2013 Corridor A",
+            "deadline": "5/5/2026"
         },
         {
-            "projectName": "Airport Terminal Expansion \u2013 Electrical Works",
-            "issued_by": "Airport Authority of India",
-            "category": "IT Services",
-            "submissionDeadline": "2/28/2026",
-            "project_overview": "The Airport Authority of India invites sealed bids from eligible cable manufacturers for the supply of electrical power and control cables for airport terminal expansion works. The project includes terminal lighting systems, baggage handling systems, security and surveillance installations, and passenger boarding bridge power supply infrastructure.",
-            "scope_of_supply": "LT Power Cables (1.1 kV) Quantity: 1800 meters Conductor Size: 185 mm\u00b2 Material: Copper Insulation: XLPE No. of Cores: 4 cores Armoring: Steel tape Rated Voltage: 1.1 kV Temperature Rating: 90\u00b0C Control Cables (0.6 kV) Quantity: 700 meters Conductor Size: 1.5 mm\u00b2 Material: Copper Insulation: PVC No. of Cores: 12 cores Armoring: None Rated Voltage: 0.6 kV Temperature Rating: 70\u00b0C",
-            "technical_specifications": "Indian Standards: IS 1554 International Standards: IEC 60227, IEC 60502, IEC 60331 Certification: BIS mandatory",
-            "testing_requirements": "Pre-Delivery Tests Routine tests on 100% of production Type tests on certified samples Material certificates for all components Fire resistance test certificates On-Site Tests Test Cost (\u20b9) Electrical Tests 14,000 Mechanical Inspection 10,000 Documentation and Certification 6,000 Total Estimated Cost: \u20b930,000",
-            "delivery_timeline": "Order Placement: 2025-03-05 Manufacturing Lead Time: 35 days Delivery Date: 2025-04-20 Installation Completion: 2025-05-15",
-            "pricing_details": "Warranty: Standard 5-year warranty against manufacturing defects",
-            "evaluation_criteria": "Technical Compliance: Mandatory Delivery Capability: Required Price Weightage: 40% Certification: BIS mandatory After-Sales Support: years",
-            "submission_format": "Submission Mode: Sealed bid Technical proposal with compliance matrix Commercial proposal with detailed pricing schedule Product datasheets and test certificates Company profile and certifications Bank guarantee (5% of total order value)"
+            "name": "Airport Terminal Expansion \u2013 Electrical Works",
+            "deadline": "2/28/2026"
         }
     ],
+    "selected_rfp": "Airport Terminal Expansion \u2013 Electrical Works",
+    "selected_deadline": "2/28/2026",
     "source": "https://ey-fmcg.onrender.com/scrape?months=3",
     "filter_window_days": 90,
-    "generated_at": "2026-02-18T06:27:37.603041"
+    "generated_at": "2026-02-19T04:35:05.592991"
 }

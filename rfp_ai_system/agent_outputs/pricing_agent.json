@@ -1,8 +1,178 @@
 {
-    "prices": [],
-    "pricing_logic": {
-        "margin_policy": "15\u201330% based on tender size",
-        "fallback_cost": 50000,
-        "random_margin_variation": "\u00b15%"
-    }
+    "line_item_count": 10,
+    "line_item_pricing": [
+        {
+            "line_item": "Power Cable 0.6 kV 185 mm\u00b2 Aluminum Quantity: 1900 meters Conductor Size: 185 mm",
+            "sku": "CAB-MVPO-0.6KV-70-AL-XLPE-4C-SW-0275",
+            "unit_price_inr": 1130.62,
+            "moq_meters": 500,
+            "material_cost_inr": 565310.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 637310.0
+        },
+        {
+            "line_item": "Power Cable 1.1 kV 120 mm\u00b2 Copper Quantity: 1750 meters Conductor Size: 120 mm\u00b2 ",
+            "sku": "CAB-HVPO-1.1KV-120-CO-XLPE-4C-ST-0002",
+            "unit_price_inr": 4772.8,
+            "moq_meters": 250,
+            "material_cost_inr": 1193200.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 1265200.0
+        },
+        {
+            "line_item": "Power Cable 0.4 kV 50 mm\u00b2 Aluminum Quantity: 1600 meters Conductor Size: 50 mm\u00b2 ",
+            "sku": "CAB-LVPO-0.4KV-16-AL-PVC-2C-NA-0443",
+            "unit_price_inr": 436.3,
+            "moq_meters": 250,
+            "material_cost_inr": 109075.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 181075.0
+        },
+        {
+            "line_item": "Power Cable 0.4 kV 70 mm\u00b2 Copper Quantity: 1700 meters Conductor Size: 70 mm\u00b2 Ma",
+            "sku": "CAB-LVPO-0.4KV-16-CO-PVC-2C-SW-0432",
+            "unit_price_inr": 353.72,
+            "moq_meters": 1000,
+            "material_cost_inr": 353720.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 425720.0
+        },
+        {
+            "line_item": "Control Cable 1.1 kV 2.5 mm\u00b2 Copper Quantity: 950 meters Conductor Size: 2.5 mm\u00b2",
+            "sku": "CAB-CONT-1.1KV-1.5-CO-XLPE-12C-SW-0543",
+            "unit_price_inr": 317.49,
+            "moq_meters": 500,
+            "material_cost_inr": 158745.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 230745.0
+        },
+        {
+            "line_item": "Control Cable 0.6 kV 1.5 mm\u00b2 Copper Quantity: 1100 meters Conductor Size: 1.5 mm",
+            "sku": "CAB-CONT-0.6KV-1.5-CO-XLPE-24C-SW-0573",
+            "unit_price_inr": 256.11,
+            "moq_meters": 500,
+            "material_cost_inr": 128055.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 200055.0
+        },
+        {
+            "line_item": "Power Cable 6.6 kV 120 mm\u00b2 Copper Quantity: 2000 meters Conductor Size: 120 mm\u00b2 ",
+            "sku": "CAB-HVPO-6.6KV-120-CO-XLPE-4C-SW-0089",
+            "unit_price_inr": 5119.97,
+            "moq_meters": 1000,
+            "material_cost_inr": 5119970.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 5191970.0
+        },
+        {
+            "line_item": "Power Cable 6.6 kV 240 mm\u00b2 Copper Quantity: 2100 meters Conductor Size: 240 mm\u00b2 ",
+            "sku": "CAB-HVPO-6.6KV-120-CO-PVC-3C-SW-0093",
+            "unit_price_inr": 5046.79,
+            "moq_meters": 100,
+            "material_cost_inr": 504679.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 576679.0
+        },
+        {
+            "line_item": "Power Cable 0.4 kV 25 mm\u00b2 Aluminum Quantity: 1500 meters Conductor Size: 25 mm\u00b2 ",
+            "sku": "CAB-LVPO-0.4KV-16-AL-XLPE-4C-SW-0453",
+            "unit_price_inr": 771.26,
+            "moq_meters": 500,
+            "material_cost_inr": 385630.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 457630.0
+        },
+        {
+            "line_item": "Power Cable 0.6 kV 240 mm\u00b2 Aluminum Quantity: 1800 meters Conductor Size: 240 mm",
+            "sku": "CAB-MVPO-0.6KV-70-AL-PVC-3C-SW-0277",
+            "unit_price_inr": 1641.7,
+            "moq_meters": 250,
+            "material_cost_inr": 410425.0,
+            "test_codes": [
+                "DOC-01",
+                "ET-01",
+                "ET-02",
+                "MI-01",
+                "RT-01",
+                "TT-01"
+            ],
+            "test_cost_inr": 72000.0,
+            "line_total_inr": 482425.0
+        }
+    ],
+    "total_material_cost": 8928809.0,
+    "total_test_cost": 720000.0,
+    "grand_total": 9648809.0
 }

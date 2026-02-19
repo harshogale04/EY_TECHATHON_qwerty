@@ -1,10 +1,23 @@
+# agents/sales_agent.py
+"""
+Sales Agent
+============
+PS requirements:
+  ✓ Identifies RFPs due for submission in the next three months
+  ✓ Scans identified web URLs to summarise RFPs with their due dates
+  ✓ Identifies ONE RFP to be selected for response and sends it to the Master Agent
+
+The agent fetches all upcoming tenders, then selects the single most
+urgent one (earliest deadline) before putting it in state.
+"""
+
 import requests
 from datetime import datetime, timedelta
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from utils.agent_io import save_agent_output
-# ---------------- HTTP Session with Retry ---------------- #
 
+# ── HTTP session with retry ───────────────────────────────────────────────
 session = requests.Session()
 retries = Retry(
     total=3,
@@ -16,95 +29,106 @@ session.mount("https://", HTTPAdapter(max_retries=retries))
 SCRAPER_API = "https://ey-fmcg.onrender.com/scrape?months=3"
 
 
-# ---------------- Date Parser ---------------- #
-
 def parse_date(date_str):
     if not date_str:
         return None
-
     for fmt in ("%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%m/%d/%Y"):
         try:
             return datetime.strptime(date_str.replace("Z", ""), fmt)
         except ValueError:
             pass
-
     return None
 
 
-# ---------------- Sales Agent ---------------- #
+def sales_agent(state: dict) -> dict:
+    """
+    Sales Agent — fetches live tenders, filters to 3-month window,
+    selects the ONE most urgent RFP, and puts it in state['rfps'].
 
-def sales_agent(state):
+    PS requirement: 'Identifies one RFP to be selected for response
+    and sends this to the Main Agent.'
+    """
     print("🔍 Sales Agent fetching live scraped tenders...")
 
-    # ALWAYS initialize rfps to keep LangGraph safe
+    # Always initialise to keep LangGraph safe
     state["rfps"] = []
 
     try:
         response = session.get(SCRAPER_API, timeout=120)
-
         if response.status_code != 200:
-            print(f"⚠️ Scraper API failed ({response.status_code})")
+            print(f"⚠️  Scraper API failed ({response.status_code})")
             return state
-
         data = response.json()
-
     except Exception as e:
-        print("❌ Scraper API unreachable")
-        print(e)
+        print(f"❌ Scraper API unreachable: {e}")
         return state
 
     rfps = data.get("data", [])
-
     if not rfps:
-        print("⚠️ No tenders returned by scraper")
+        print("⚠️  No tenders returned by scraper")
         return state
 
-    today = datetime.today()
+    today        = datetime.today()
     three_months = today + timedelta(days=90)
 
+    # ── Step 1: Filter to tenders due within 3 months ────────────────────
     upcoming = []
-
     for rfp in rfps:
         due_date = parse_date(rfp.get("submission_deadline"))
         if not due_date:
             continue
-
         if not (today <= due_date <= three_months):
             continue
 
         sections = rfp.get("sections", {})
-
         upcoming.append({
-            "projectName": rfp.get("project_name"),
-            "issued_by": rfp.get("issued_by"),
-            "category": rfp.get("category"),
-            "submissionDeadline": rfp.get("submission_deadline"),
-
-            "project_overview": sections.get("1. Project Overview", ""),
-            "scope_of_supply": sections.get("2. Scope of Supply", ""),
+            "projectName":           rfp.get("project_name"),
+            "issued_by":             rfp.get("issued_by"),
+            "category":              rfp.get("category"),
+            "submissionDeadline":    rfp.get("submission_deadline"),
+            "_due_date":             due_date,          # internal, for sorting
+            "project_overview":      sections.get("1. Project Overview", ""),
+            "scope_of_supply":       sections.get("2. Scope of Supply", ""),
             "technical_specifications": sections.get("3. Technical Specifications", ""),
-            "testing_requirements": sections.get("4. Acceptance & Test Requirements", ""),
-            "delivery_timeline": sections.get("5. Delivery Timeline", ""),
-            "pricing_details": sections.get("6. Pricing Details", ""),
-            "evaluation_criteria": sections.get("7. Evaluation Criteria", ""),
-            "submission_format": sections.get("8. Submission Format", ""),
+            "testing_requirements":  sections.get("4. Acceptance & Test Requirements", ""),
+            "delivery_timeline":     sections.get("5. Delivery Timeline", ""),
+            "pricing_details":       sections.get("6. Pricing Details", ""),
+            "evaluation_criteria":   sections.get("7. Evaluation Criteria", ""),
+            "submission_format":     sections.get("8. Submission Format", ""),
         })
 
     if not upcoming:
-        print("⚠️ No valid tenders found after filtering")
+        print("⚠️  No valid tenders found after filtering")
         return state
 
-    state["rfps"] = upcoming
-    save_agent_output(
-    "sales_agent",
-    {
-        "tender_count": len(upcoming),
-        "rfps": upcoming,
-        "source": SCRAPER_API,
+    print(f"📋 Sales Agent found {len(upcoming)} tender(s) in the 3-month window:")
+    for t in upcoming:
+        print(f"   • {t['projectName']} — deadline {t['submissionDeadline']}")
+
+    # ── Step 2: Select ONE — the most urgent (earliest deadline) ─────────
+    selected = min(upcoming, key=lambda t: t["_due_date"])
+
+    # Remove internal sorting field before passing to next agents
+    selected.pop("_due_date", None)
+    for t in upcoming:
+        t.pop("_due_date", None)
+
+    print(f"\n✅ Sales Agent selected: '{selected['projectName']}' (deadline: {selected['submissionDeadline']})")
+
+    # PS: "sends this to the Main Agent" — put only the selected RFP in state
+    state["rfps"] = [selected]
+
+    save_agent_output("sales_agent", {
+        "tenders_in_window": len(upcoming),
+        "all_tenders": [
+            {"name": t["projectName"], "deadline": t["submissionDeadline"]}
+            for t in upcoming
+        ],
+        "selected_rfp":       selected["projectName"],
+        "selected_deadline":  selected["submissionDeadline"],
+        "source":             SCRAPER_API,
         "filter_window_days": 90,
-        "generated_at": datetime.utcnow().isoformat()
-    }
-    )
-    print(f"✅ Sales Agent shortlisted {len(upcoming)} tenders")
+        "generated_at":       datetime.utcnow().isoformat(),
+    })
 
     return state

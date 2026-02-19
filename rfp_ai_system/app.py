@@ -1,7 +1,8 @@
+# app.py
 """
-Flask Web Application for RFP Tender Analysis
-==============================================
-Provides web interface for analyzing tenders via URLs or PDF uploads
+Flask Web Application for RFP Tender Analysis (Updated)
+=========================================================
+Passes test_services_db into state and reads from new final_response structure.
 """
 
 from flask import Flask, request, jsonify, send_file, render_template
@@ -13,8 +14,8 @@ from werkzeug.utils import secure_filename
 import json
 from datetime import datetime
 import traceback
+import pandas as pd
 
-# Import your existing agents and utilities
 from graph import build_graph
 from utils.loader import load_oem
 from config import OEM_PATH
@@ -24,30 +25,29 @@ import PyPDF2
 app = Flask(__name__)
 CORS(app)
 
-# Configuration
 UPLOAD_FOLDER = tempfile.gettempdir()
 ALLOWED_EXTENSIONS = {'pdf'}
-MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
+MAX_FILE_SIZE = 16 * 1024 * 1024
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
-# Load product database once at startup
+# Load both DB sheets at startup
 try:
     PRODUCT_DB = load_oem(OEM_PATH)
-    print(f"✅ Loaded {len(PRODUCT_DB)} products from database")
+    TEST_SERVICES_DB = pd.read_excel(OEM_PATH, sheet_name="Testing Services")
+    print(f"✅ Loaded {len(PRODUCT_DB)} products and {len(TEST_SERVICES_DB)} test services")
 except Exception as e:
-    print(f"⚠️ Warning: Could not load product database: {e}")
+    print(f"⚠️  Warning: Could not load database: {e}")
     PRODUCT_DB = None
+    TEST_SERVICES_DB = None
 
 
 def allowed_file(filename):
-    """Check if file extension is allowed"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def extract_text_from_pdf(pdf_path):
-    """Extract text content from PDF file"""
     text = ""
     try:
         with open(pdf_path, 'rb') as file:
@@ -56,24 +56,15 @@ def extract_text_from_pdf(pdf_path):
                 text += page.extract_text() + "\n"
     except Exception as e:
         raise Exception(f"Failed to extract text from PDF: {str(e)}")
-    
     return text.strip()
 
 
 def scrape_tender_url(url):
-    """
-    Scrape tender data from URL
-    
-    This is a simplified version - you may need to adapt based on actual websites
-    """
     try:
         response = requests.get(url, timeout=30)
         response.raise_for_status()
-        
-        # For now, return raw HTML/text
-        # In production, you'd parse the HTML to extract structured data
         return {
-            'raw_content': response.text[:10000],  # Limit to first 10k chars
+            'raw_content': response.text[:10000],
             'url': url,
             'scraped_at': datetime.now().isoformat()
         }
@@ -83,88 +74,103 @@ def scrape_tender_url(url):
 
 def process_tender_data(tender_text, source_info):
     """
-    Process tender text through the analysis pipeline
-    
-    Args:
-        tender_text: Raw tender text content
-        source_info: Dictionary with source metadata (url or filename)
-        
-    Returns:
-        Dictionary with analysis results
+    Run one tender through the full pipeline and return the final_response.
     """
     if PRODUCT_DB is None:
         raise Exception("Product database not loaded")
-    
-    # Format the raw text into structured sections using Gemini
+
     try:
         structured_rfp = format_rfp(tender_text)
-    except Exception as e:
-        # If formatting fails, create a basic structure
+    except Exception:
         structured_rfp = {
             "project_overview": tender_text[:500],
             "scope_of_supply": "",
             "technical_specifications": tender_text,
-            "acceptance_and_test_requirements": "",
+            "testing_requirements": "",
             "delivery_timeline": "",
             "pricing_details": "",
             "evaluation_criteria": "",
             "submission_format": ""
         }
-    
-    # Add metadata
+
     structured_rfp.update({
         "projectName": source_info.get('name', 'Uploaded Tender'),
         "issued_by": source_info.get('issuer', 'Unknown'),
         "category": source_info.get('category', 'General'),
         "submissionDeadline": source_info.get('deadline', ''),
     })
-    
-    # Build the analysis graph
+
     graph = build_graph()
-    
-    # Create initial state with the single RFP
+
     state = {
         "product_db": PRODUCT_DB,
-        "rfps": [structured_rfp]
+        "test_services_db": TEST_SERVICES_DB,
+        "rfps": [structured_rfp],  # sales agent normally fills this; we inject directly
     }
-    
-    # Run the analysis pipeline
+
     final_state = graph.invoke(state)
-    
-    # Extract results
+
+    final_response = final_state.get("final_response", {})
+    bid_viability = final_response.get("bid_viability", {})
+    line_items = final_response.get("line_items", [])
+    summary = final_response.get("summary", {})
+    component_scores = bid_viability.get("component_scores", {})
+
+    # Compute average technical match % across all line items
+    tech_match_scores = []
+    for item in line_items:
+        top3 = item.get("top_3_recommendations", [])
+        if top3:
+            tech_match_scores.append(top3[0].get("spec_match_pct", 0))
+    avg_tech_match = (sum(tech_match_scores) / len(tech_match_scores)) if tech_match_scores else 0
+
+    # Normalise bid viability score: backend stores 0-100, frontend expects 0-1
+    raw_score = bid_viability.get("score", 0)
+    normalised_score = raw_score / 100.0 if raw_score > 1 else raw_score
+
     result = {
-        "rfp": structured_rfp,
-        "technical_matches": final_state.get("tech_matches", [[]])[0],
-        "price": final_state.get("prices", [0])[0],
-        "score": final_state.get("scores", [0])[0],
-        "detailed_score": final_state.get("detailed_scores", [{}])[0] if "detailed_scores" in final_state else {},
+        # ── New structure (for PDF download endpoint) ──
+        "final_response": final_response,
         "pdf_path": final_state.get("pdf_path"),
-        "source": source_info
+        "source": source_info,
+
+        # ── Fields the frontend showResults() reads ──
+        "score": normalised_score,                          # 0-1 float  → shown as "NaN%" without this
+        "price": summary.get("grand_total_inr", 0),         # grand total ₹
+        "technical_matches": line_items,                    # list length → "Matched Products"
+        "detailed_score": {
+            "recommendation": bid_viability.get("recommendation", "N/A"),
+            "component_scores": {
+                "technical_match": avg_tech_match,          # 0-100 → shown as "0%" without this
+                **component_scores,
+            },
+        },
+
+        # ── Legacy fallback ──
+        "rfp": structured_rfp,
     }
-    
+
     return result
 
 
 @app.route('/')
 def index():
-    """Serve the main web interface"""
     return render_template('index.html')
+
 
 @app.route("/api/agents/all")
 def get_all_agents():
     agent_dir = "agent_outputs"
     agents = {}
-
     if not os.path.exists(agent_dir):
         return jsonify({"error": "agent_outputs folder not found"}), 404
-
     for file in os.listdir(agent_dir):
         if file.endswith(".json"):
             agent_name = file.replace(".json", "")
             with open(os.path.join(agent_dir, file), "r") as f:
                 agents[agent_name] = json.load(f)
-
     return jsonify(agents)
+
 
 @app.route("/agents_all")
 def agents_all_page():
@@ -173,94 +179,53 @@ def agents_all_page():
 
 @app.route('/api/analyze-url', methods=['POST'])
 def analyze_url():
-    """
-    Analyze tender from URL
-    
-    Request JSON:
-    {
-        "url": "https://example.com/tender",
-        "name": "Optional tender name",
-        "issuer": "Optional issuer name",
-        "deadline": "Optional deadline"
-    }
-    """
     try:
         data = request.get_json()
-        
         if not data or 'url' not in data:
             return jsonify({'error': 'URL is required'}), 400
-        
-        url = data['url']
-        
-        # Scrape the URL
-        scraped_data = scrape_tender_url(url)
+
+        scraped_data = scrape_tender_url(data['url'])
         tender_text = scraped_data['raw_content']
-        
-        # Process the tender
+
         source_info = {
             'type': 'url',
-            'url': url,
+            'url': data['url'],
             'name': data.get('name', 'Web Tender'),
             'issuer': data.get('issuer', 'Unknown'),
             'deadline': data.get('deadline', ''),
             'category': data.get('category', 'General')
         }
-        
+
         result = process_tender_data(tender_text, source_info)
-        
-        # Convert numpy types to native Python types for JSON serialization
         result = json.loads(json.dumps(result, default=str))
-        
-        return jsonify({
-            'success': True,
-            'data': result
-        })
-        
+        return jsonify({'success': True, 'data': result})
+
     except Exception as e:
         print(f"Error in analyze-url: {traceback.format_exc()}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/analyze-pdf', methods=['POST'])
 def analyze_pdf():
-    """
-    Analyze tender from uploaded PDF
-    
-    Multipart form data:
-    - file: PDF file
-    - name: Optional tender name
-    - issuer: Optional issuer name
-    - deadline: Optional deadline
-    """
     try:
-        # Check if file is present
         if 'file' not in request.files:
             return jsonify({'error': 'No file uploaded'}), 400
-        
+
         file = request.files['file']
-        
         if file.filename == '':
             return jsonify({'error': 'No file selected'}), 400
-        
         if not allowed_file(file.filename):
             return jsonify({'error': 'Only PDF files are allowed'}), 400
-        
-        # Save the uploaded file
+
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
-        
+
         try:
-            # Extract text from PDF
             tender_text = extract_text_from_pdf(filepath)
-            
             if not tender_text or len(tender_text) < 100:
                 return jsonify({'error': 'Could not extract sufficient text from PDF'}), 400
-            
-            # Process the tender
+
             source_info = {
                 'type': 'pdf',
                 'filename': filename,
@@ -269,96 +234,67 @@ def analyze_pdf():
                 'deadline': request.form.get('deadline', ''),
                 'category': request.form.get('category', 'General')
             }
-            
+
             result = process_tender_data(tender_text, source_info)
-            
-            # Convert numpy types to native Python types
             result = json.loads(json.dumps(result, default=str))
-            
-            return jsonify({
-                'success': True,
-                'data': result
-            })
-            
+            return jsonify({'success': True, 'data': result})
+
         finally:
-            # Clean up uploaded file
             if os.path.exists(filepath):
                 os.remove(filepath)
-        
+
     except Exception as e:
         print(f"Error in analyze-pdf: {traceback.format_exc()}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/download-report', methods=['POST'])
 def download_report():
-    """
-    Generate and download PDF report for analyzed tender
-    
-    Request JSON: Complete analysis result from analyze-url or analyze-pdf
-    """
     try:
         data = request.get_json()
-        
         if not data:
             return jsonify({'error': 'No data provided'}), 400
-        
-        # Import PDF generator
+
         from pdf_generator_v2 import generate_rfp_pdf
-        
-        # Prepare data for PDF generation
-        pdf_data = {
-            "rfp": data.get("rfp", {}),
-            "matches": data.get("technical_matches", []),
-            "price": float(data.get("price", 0)),
-            "score": float(data.get("score", 0))
-        }
-        
-        # Generate PDF
+
+        # Accept either new final_response structure or legacy
+        rfp_data = data.get("final_response") or data
+
         output_filename = f"rfp_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
-        
-        generate_rfp_pdf(pdf_data, output_path)
-        
-        # Send file and clean up
+
+        generate_rfp_pdf(rfp_data, output_path)
+
         return send_file(
             output_path,
             as_attachment=True,
             download_name=output_filename,
             mimetype='application/pdf'
         )
-        
+
     except Exception as e:
         print(f"Error in download-report: {traceback.format_exc()}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
         'database_loaded': PRODUCT_DB is not None,
-        'products_count': len(PRODUCT_DB) if PRODUCT_DB is not None else 0
+        'products_count': len(PRODUCT_DB) if PRODUCT_DB is not None else 0,
+        'test_services_loaded': TEST_SERVICES_DB is not None,
+        'test_services_count': len(TEST_SERVICES_DB) if TEST_SERVICES_DB is not None else 0,
     })
 
 
 if __name__ == '__main__':
-    # Create templates directory if it doesn't exist
     os.makedirs('templates', exist_ok=True)
-    
     print("\n" + "="*60)
     print("🚀 RFP Tender Analysis Web Application")
     print("="*60)
-    print(f"📊 Products in database: {len(PRODUCT_DB) if PRODUCT_DB is not None else 0}")
-
+    print(f"📊 Products: {len(PRODUCT_DB) if PRODUCT_DB is not None else 0}")
+    print(f"🧪 Test services: {len(TEST_SERVICES_DB) if TEST_SERVICES_DB is not None else 0}")
     print("🌐 Starting server at http://localhost:5001")
     print("="*60 + "\n")
-    
     app.run(debug=True, host='0.0.0.0', port=5001)
