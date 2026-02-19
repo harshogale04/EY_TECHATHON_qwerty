@@ -26,6 +26,7 @@
             --text: #e8e0d0;
             --text-dim: rgba(232, 224, 208, 0.5);
             --text-muted: rgba(232, 224, 208, 0.3);
+            --blue: #89b4fa;
         }
 
         html { scroll-behavior: smooth; }
@@ -38,7 +39,6 @@
             overflow-x: hidden;
         }
 
-        /* ─── NOISE TEXTURE ─── */
         body::before {
             content: '';
             position: fixed;
@@ -49,7 +49,6 @@
             opacity: 0.6;
         }
 
-        /* ─── AMBIENT GLOW ─── */
         body::after {
             content: '';
             position: fixed;
@@ -66,23 +65,23 @@
         .page-wrap {
             position: relative;
             z-index: 1;
-            max-width: 960px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 0 1.5rem 5rem;
         }
 
         /* ─── HEADER ─── */
         header {
-            padding: 4rem 0 3.5rem;
+            padding: 3rem 0 2.5rem;
             text-align: center;
             position: relative;
         }
 
         .header-rule {
             width: 1px;
-            height: 60px;
+            height: 50px;
             background: linear-gradient(to bottom, transparent, var(--gold));
-            margin: 0 auto 2rem;
+            margin: 0 auto 1.5rem;
             animation: fadeDown 0.8s ease forwards;
         }
 
@@ -99,36 +98,54 @@
             letter-spacing: 0.4em;
             color: var(--gold);
             text-transform: uppercase;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             opacity: 0;
             animation: fadeUp 0.7s 0.3s ease forwards;
         }
 
         .headline {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(2.4rem, 5vw, 3.8rem);
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
             font-weight: 900;
             line-height: 1.05;
             letter-spacing: -0.02em;
             color: var(--cream);
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             opacity: 0;
             animation: fadeUp 0.7s 0.45s ease forwards;
         }
 
-        .headline em {
-            font-style: italic;
-            color: var(--gold);
-        }
+        .headline em { font-style: italic; color: var(--gold); }
 
         .sub {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-dim);
             font-weight: 300;
             letter-spacing: 0.02em;
             opacity: 0;
             animation: fadeUp 0.7s 0.6s ease forwards;
         }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 2px;
+            transition: all 0.2s;
+            position: absolute;
+            left: 0;
+            top: 3rem;
+        }
+
+        .back-link:hover { color: var(--gold); border-color: var(--gold-border); }
 
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(16px); }
@@ -155,9 +172,7 @@
             color: var(--text-muted);
         }
 
-        .agent-count span {
-            color: var(--gold);
-        }
+        .agent-count span { color: var(--gold); }
 
         .btn-refresh {
             display: inline-flex;
@@ -183,7 +198,7 @@
             box-shadow: 0 4px 16px rgba(201,168,76,0.2);
         }
 
-        /* ─── AGENT BLOCK ─── */
+        /* ─── AGENT PANEL ─── */
         .panel {
             background: var(--ink-2);
             border: 1px solid var(--gold-border);
@@ -196,10 +211,7 @@
             transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s;
         }
 
-        .panel.visible {
-            opacity: 1;
-            transform: none;
-        }
+        .panel.visible { opacity: 1; transform: none; }
 
         .panel::before {
             content: '';
@@ -219,9 +231,7 @@
             pointer-events: none;
         }
 
-        .panel:hover {
-            border-color: rgba(201, 168, 76, 0.45);
-        }
+        .panel:hover { border-color: rgba(201, 168, 76, 0.45); }
 
         /* ─── AGENT HEADER ─── */
         .agent-header {
@@ -236,9 +246,7 @@
             gap: 1rem;
         }
 
-        .agent-header:hover {
-            background: var(--ink-4);
-        }
+        .agent-header:hover { background: var(--ink-4); }
 
         .agent-name-wrap {
             display: flex;
@@ -247,22 +255,9 @@
             min-width: 0;
         }
 
-        .agent-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--gold);
+        .agent-icon {
+            font-size: 1.1rem;
             flex-shrink: 0;
-            box-shadow: 0 0 6px rgba(201,168,76,0.5);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .agent-dot.error { background: var(--danger); box-shadow: 0 0 6px rgba(224,91,91,0.5); }
-        .agent-dot.empty { background: var(--text-muted); box-shadow: none; animation: none; }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
         }
 
         .agent-name {
@@ -272,8 +267,12 @@
             letter-spacing: 0.1em;
             color: var(--cream);
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        }
+
+        .agent-desc {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-left: 0.75rem;
         }
 
         .agent-meta {
@@ -293,23 +292,9 @@
             border: 1px solid;
         }
 
-        .agent-badge.success {
-            color: var(--success);
-            border-color: rgba(93,191,143,0.3);
-            background: rgba(93,191,143,0.08);
-        }
-
-        .agent-badge.error {
-            color: var(--danger);
-            border-color: rgba(224,91,91,0.3);
-            background: rgba(224,91,91,0.08);
-        }
-
-        .agent-badge.empty {
-            color: var(--text-muted);
-            border-color: rgba(255,255,255,0.08);
-            background: transparent;
-        }
+        .agent-badge.success { color: var(--success); border-color: rgba(93,191,143,0.3); background: rgba(93,191,143,0.08); }
+        .agent-badge.error { color: var(--danger); border-color: rgba(224,91,91,0.3); background: rgba(224,91,91,0.08); }
+        .agent-badge.empty { color: var(--text-muted); border-color: rgba(255,255,255,0.08); background: transparent; }
 
         .toggle-icon {
             font-family: 'DM Mono', monospace;
@@ -319,68 +304,227 @@
             flex-shrink: 0;
         }
 
-        .panel.open .toggle-icon {
-            transform: rotate(180deg);
-        }
+        .panel.open .toggle-icon { transform: rotate(180deg); }
 
-        /* ─── CODE AREA ─── */
+        /* ─── BODY ─── */
         .agent-body {
             display: none;
             border-top: 1px solid var(--gold-border);
         }
 
-        .panel.open .agent-body {
-            display: block;
-        }
+        .panel.open .agent-body { display: block; }
 
-        pre {
-            margin: 0;
-            padding: 1.5rem;
-            background: var(--ink);
-            overflow-x: auto;
-            max-height: 420px;
+        /* ─── STRUCTURED CONTENT ─── */
+        .section-title {
             font-family: 'DM Mono', monospace;
-            font-size: 0.78rem;
-            font-weight: 300;
-            line-height: 1.75;
-            color: var(--cream-dim);
-            scrollbar-width: thin;
-            scrollbar-color: var(--gold-border) transparent;
+            font-size: 0.62rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold);
+            padding: 1.25rem 1.5rem 0.5rem;
         }
 
-        pre::-webkit-scrollbar { width: 4px; height: 4px; }
-        pre::-webkit-scrollbar-track { background: transparent; }
-        pre::-webkit-scrollbar-thumb { background: var(--gold-border); border-radius: 2px; }
-
-        /* JSON syntax highlight */
-        .json-key { color: var(--gold); }
-        .json-string { color: #a8d8a8; }
-        .json-number { color: #89b4fa; }
-        .json-bool { color: var(--warning); }
-        .json-null { color: var(--text-muted); }
-
-        /* ─── EMPTY / ERROR STATE ─── */
-        .state-msg {
-            padding: 4rem 2.5rem;
-            text-align: center;
+        /* ─── KPI ROW ─── */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
         }
 
-        .state-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            display: block;
-            opacity: 0.4;
+        .kpi {
+            padding: 1.25rem 1.5rem;
+            border-right: 1px solid rgba(255,255,255,0.04);
+            position: relative;
+            transition: background 0.2s;
         }
 
-        .state-text {
+        .kpi:last-child { border-right: none; }
+        .kpi:hover { background: var(--mist); }
+
+        .kpi-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--cream);
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+
+        .kpi-value.gold { color: var(--gold); }
+        .kpi-value.success { color: var(--success); }
+        .kpi-value.warning { color: var(--warning); }
+        .kpi-value.danger { color: var(--danger); }
+
+        .kpi-label {
             font-family: 'DM Mono', monospace;
-            font-size: 0.75rem;
+            font-size: 0.58rem;
             letter-spacing: 0.2em;
             text-transform: uppercase;
             color: var(--text-muted);
         }
 
-        .state-text.error { color: var(--danger); opacity: 0.8; }
+        /* ─── DATA TABLE ─── */
+        .data-table-wrap {
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold-border) transparent;
+        }
+
+        .data-table-wrap::-webkit-scrollbar { height: 4px; }
+        .data-table-wrap::-webkit-scrollbar-track { background: transparent; }
+        .data-table-wrap::-webkit-scrollbar-thumb { background: var(--gold-border); border-radius: 2px; }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+
+        .data-table thead th {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gold);
+            background: var(--ink-3);
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gold-border);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .data-table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: var(--cream-dim);
+            font-weight: 300;
+            vertical-align: top;
+        }
+
+        .data-table tbody tr:hover td { background: var(--mist); }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+
+        .mono { font-family: 'DM Mono', monospace; font-size: 0.72rem; }
+        .text-gold { color: var(--gold); }
+        .text-success { color: var(--success); }
+        .text-warning { color: var(--warning); }
+        .text-dim { color: var(--text-dim); }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .nowrap { white-space: nowrap; }
+
+        .match-badge {
+            display: inline-block;
+            padding: 0.15rem 0.45rem;
+            border-radius: 1px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+
+        .match-badge.match { background: rgba(93,191,143,0.12); color: var(--success); border: 1px solid rgba(93,191,143,0.2); }
+        .match-badge.no-match { background: rgba(224,91,91,0.12); color: var(--danger); border: 1px solid rgba(224,91,91,0.2); }
+        .match-badge.na { background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.06); }
+
+        /* Score bar */
+        .score-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .score-bar-fill.high { background: var(--success); }
+        .score-bar-fill.medium { background: var(--warning); }
+        .score-bar-fill.low { background: var(--danger); }
+
+        /* Info row */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-key {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+
+        .info-val {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            color: var(--cream);
+            font-weight: 400;
+        }
+
+        /* tender card */
+        .tender-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.15s;
+        }
+
+        .tender-card:hover { background: var(--mist); }
+        .tender-card:last-child { border-bottom: none; }
+
+        .tender-name { font-size: 0.85rem; color: var(--cream); font-weight: 400; }
+
+        .tender-deadline {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+
+        /* collapse detail */
+        .detail-toggle {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 1.5rem;
+            border: 1px solid var(--gold-border);
+            background: var(--gold-dim);
+            border-radius: 1px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .detail-toggle:hover { background: var(--gold); color: var(--ink); }
+
+        .detail-content { display: none; }
+        .detail-content.show { display: block; }
 
         /* ─── LOADING ─── */
         .loading-wrap {
@@ -410,10 +554,7 @@
             animation: scan 1.4s ease-in-out infinite;
         }
 
-        @keyframes scan {
-            from { left: -60%; }
-            to { left: 100%; }
-        }
+        @keyframes scan { from { left: -60%; } to { left: 100%; } }
 
         .loading-label {
             font-family: 'DM Mono', monospace;
@@ -423,14 +564,17 @@
             color: var(--text-muted);
         }
 
-        .loading-label span {
-            color: var(--gold);
-            animation: blink 1.2s step-end infinite;
-        }
-
+        .loading-label span { color: var(--gold); animation: blink 1.2s step-end infinite; }
         @keyframes blink { 50% { opacity: 0; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        /* ─── FOOTER ─── */
+        /* ─── EMPTY STATE ─── */
+        .state-msg { padding: 4rem 2.5rem; text-align: center; }
+        .state-icon { font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.4; }
+        .state-text { font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); }
+        .state-text.error { color: var(--danger); opacity: 0.8; }
+
+        /* footer */
         .footer-note {
             text-align: center;
             padding-top: 2.5rem;
@@ -442,20 +586,22 @@
 
         .footer-note span { color: var(--gold); opacity: 0.6; }
 
-        /* ─── RESPONSIVE ─── */
-        @media (max-width: 600px) {
-            .agent-name { font-size: 0.72rem; }
-            pre { font-size: 0.72rem; padding: 1rem; }
+        /* responsive */
+        @media (max-width: 700px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .back-link { position: static; margin-bottom: 1rem; display: inline-flex; }
+            .data-table { font-size: 0.72rem; }
         }
     </style>
 </head>
 <body>
 <div class="page-wrap">
     <header>
+        <a href="/" class="back-link">← Back to Analysis</a>
         <div class="header-rule"></div>
         <p class="brand">TenderIntel</p>
         <h1 class="headline">Agent<br><em>Intelligence</em></h1>
-        <p class="sub">Live output from all procurement analysis agents</p>
+        <p class="sub">Structured output from all procurement analysis agents</p>
     </header>
 
     <div class="toolbar" id="toolbar" style="display:none">
@@ -474,115 +620,335 @@
 </div>
 
 <script>
-    function syntaxHighlight(json) {
-        const str = JSON.stringify(json, null, 2);
-        return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
-            let cls = 'json-number';
-            if (/^"/.test(match)) {
-                cls = /:$/.test(match) ? 'json-key' : 'json-string';
-            } else if (/true|false/.test(match)) {
-                cls = 'json-bool';
-            } else if (/null/.test(match)) {
-                cls = 'json-null';
-            }
-            return `<span class="${cls}">${match}</span>`;
+/* ═══════════════════════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════════════════════ */
+function fmt(n) {
+    if (n == null) return '—';
+    return '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+function pct(n) { return n != null ? n.toFixed(1) + '%' : '—'; }
+
+function scoreClass(s) {
+    if (s >= 75) return 'high';
+    if (s >= 50) return 'medium';
+    return 'low';
+}
+
+function scoreColor(s) {
+    if (s >= 75) return 'success';
+    if (s >= 50) return 'warning';
+    return 'danger';
+}
+
+function matchBadge(m) {
+    if (!m || m === 'Match') return '<span class="match-badge match">✓ Match</span>';
+    if (m.includes('No Match')) return '<span class="match-badge no-match">✗ Mismatch</span>';
+    return '<span class="match-badge na">— N/A</span>';
+}
+
+function uid() { return '_' + Math.random().toString(36).substr(2, 9); }
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDERERS — one per agent type
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── SALES AGENT ── */
+function renderSalesAgent(data) {
+    if (!data) return '<div class="state-msg"><span class="state-icon">◎</span><div class="state-text">No data</div></div>';
+
+    const tenders = data.all_tenders || [];
+    let html = '';
+    html += '<div class="kpi-row">';
+    html += `<div class="kpi"><div class="kpi-value gold">${data.tenders_in_window || tenders.length}</div><div class="kpi-label">Tenders Found</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value">${data.filter_window_days || 90}</div><div class="kpi-label">Window (days)</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value text-gold" style="font-size:0.95rem;line-height:1.8">${data.selected_rfp || '—'}</div><div class="kpi-label">Selected RFP</div></div>`;
+    html += '</div>';
+
+    if (tenders.length > 0) {
+        html += '<div class="section-title">All Shortlisted Tenders</div>';
+        tenders.forEach(t => {
+            html += `<div class="tender-card">
+                <div class="tender-name">${t.name}</div>
+                <div class="tender-deadline">${t.deadline}</div>
+            </div>`;
         });
     }
+    return html;
+}
 
-    function getBadgeInfo(output) {
-        if (output === null || output === undefined) return { label: 'Empty', cls: 'empty' };
-        if (typeof output === 'object' && output.error) return { label: 'Error', cls: 'error' };
-        return { label: 'OK', cls: 'success' };
-    }
+/* ── SCORING / MASTER PHASE 1 ── */
+function renderScoringAgent(data) {
+    if (!data) return '<div class="state-msg"><span class="state-icon">◎</span><div class="state-text">No data</div></div>';
 
-    function getDotClass(output) {
-        if (output === null || output === undefined) return 'empty';
-        if (typeof output === 'object' && output.error) return 'error';
-        return '';
-    }
+    // Normalize: handle both scoring_agent and master_agent_phase1 formats
+    const score = data.final_score ?? data.bid_viability?.score ?? 0;
+    const grade = data.grade ?? data.bid_viability?.grade ?? '—';
+    const rec = data.recommendation ?? data.bid_viability?.recommendation ?? '—';
+    const components = data.component_scores ?? data.full_output?.component_scores ?? data.bid_viability?.components ?? {};
 
-    function renderAgents(data) {
-        const container = document.getElementById('container');
-        container.innerHTML = '';
+    let html = '';
+    html += '<div class="kpi-row">';
+    html += `<div class="kpi"><div class="kpi-value ${scoreColor(score)}">${score.toFixed?.(1) ?? score}</div><div class="kpi-label">Bid Viability Score</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value gold" style="font-size:1rem;line-height:1.6">${grade}</div><div class="kpi-label">Grade</div></div>`;
+    html += `<div class="kpi" style="grid-column: span 2"><div class="kpi-value" style="font-size:0.85rem;line-height:1.6;color:var(--cream-dim)">${rec}</div><div class="kpi-label">Recommendation</div></div>`;
+    html += '</div>';
 
-        const entries = Object.entries(data);
-
-        if (entries.length === 0) {
-            container.innerHTML = `
-                <div class="panel visible">
-                    <div class="state-msg">
-                        <span class="state-icon">◎</span>
-                        <div class="state-text">No agent outputs available</div>
-                    </div>
-                </div>`;
-            return;
-        }
-
-        document.getElementById('agentCount').textContent = entries.length;
-        document.getElementById('toolbar').style.display = 'flex';
-
-        entries.forEach(([agent, output], i) => {
-            const badge = getBadgeInfo(output);
-            const dotCls = getDotClass(output);
-            const formatted = syntaxHighlight(output);
-
-            const panel = document.createElement('div');
-            panel.className = 'panel';
-            panel.style.transitionDelay = `${i * 0.06}s`;
-            panel.innerHTML = `
-                <div class="agent-header">
-                    <div class="agent-name-wrap">
-                        <div class="agent-dot ${dotCls}"></div>
-                        <div class="agent-name">${agent}</div>
-                    </div>
-                    <div class="agent-meta">
-                        <span class="agent-badge ${badge.cls}">${badge.label}</span>
-                        <span class="toggle-icon">▾</span>
-                    </div>
+    if (Object.keys(components).length > 0) {
+        html += '<div class="section-title">Component Breakdown</div>';
+        html += '<div style="padding: 0.5rem 1.5rem 1.25rem">';
+        for (const [key, val] of Object.entries(components)) {
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            const cls = scoreClass(val);
+            html += `<div style="margin-bottom:0.6rem">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem">
+                    <span class="info-key">${label}</span>
+                    <span class="mono text-${scoreColor(val)}">${typeof val === 'number' ? val.toFixed(1) : val}</span>
                 </div>
-                <div class="agent-body">
-                    <pre>${formatted}</pre>
-                </div>`;
+                <div class="score-bar"><div class="score-bar-fill ${cls}" style="width:${val}%"></div></div>
+            </div>`;
+        }
+        html += '</div>';
+    }
+    return html;
+}
 
-            panel.querySelector('.agent-header').addEventListener('click', () => {
-                panel.classList.toggle('open');
-            });
+/* ── TECHNICAL AGENT ── */
+function renderTechnicalAgent(data) {
+    if (!data) return '<div class="state-msg"><span class="state-icon">◎</span><div class="state-text">No data</div></div>';
 
-            container.appendChild(panel);
+    const items = data.sku_summary_table || [];
+    const specs = data.specs_evaluated || [];
+    const lineItems = data.line_items || [];
 
-            // Stagger in
-            setTimeout(() => panel.classList.add('visible'), 50 + i * 60);
+    let html = '';
+    html += '<div class="kpi-row">';
+    html += `<div class="kpi"><div class="kpi-value gold">${data.line_items_parsed || items.length}</div><div class="kpi-label">Line Items Parsed</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value">${specs.length}</div><div class="kpi-label">Specs Evaluated</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value" style="font-size:0.85rem;line-height:1.6">${data.spec_weightage || '—'}</div><div class="kpi-label">Weighting</div></div>`;
+    html += '</div>';
+
+    // SKU Summary Table
+    if (items.length > 0) {
+        html += '<div class="section-title">SKU Selection Summary</div>';
+        html += '<div class="data-table-wrap"><table class="data-table"><thead><tr>';
+        html += '<th>#</th><th>Line Item</th><th>Selected SKU</th><th>Match %</th><th>Rank 2</th><th>Rank 3</th><th>Unit Price</th><th>MOQ</th>';
+        html += '</tr></thead><tbody>';
+        items.forEach((item, i) => {
+            const matchPct = item['spec_match_%'] ?? 0;
+            html += `<tr>
+                <td class="mono text-dim">${i+1}</td>
+                <td style="max-width:200px">${(item.line_item || '').substring(0, 60)}…</td>
+                <td class="mono text-gold nowrap">${item.selected_sku || '—'}</td>
+                <td class="text-center"><span class="mono text-${scoreColor(matchPct)}">${pct(matchPct)}</span></td>
+                <td class="mono text-dim" style="font-size:0.65rem">${item.rank_2_sku || '—'}<br><span class="text-${scoreColor(item['rank_2_match_%'])}">${pct(item['rank_2_match_%'])}</span></td>
+                <td class="mono text-dim" style="font-size:0.65rem">${item.rank_3_sku || '—'}<br><span class="text-${scoreColor(item['rank_3_match_%'])}">${pct(item['rank_3_match_%'])}</span></td>
+                <td class="mono text-right nowrap">${fmt(item.unit_price_inr)}</td>
+                <td class="mono text-right">${item.moq_meters ?? '—'}</td>
+            </tr>`;
         });
+        html += '</tbody></table></div>';
     }
 
-    function load() {
-        const container = document.getElementById('container');
-        container.innerHTML = `
-            <div class="loading-wrap">
-                <div class="scan-line"></div>
-                <div class="loading-label">Loading agent outputs<span>_</span></div>
+    // Detail comparison tables (collapsible)
+    if (lineItems.length > 0) {
+        const detailId = uid();
+        html += `<div style="padding:0.75rem 1.5rem"><button class="detail-toggle" onclick="document.getElementById('${detailId}').classList.toggle('show')">▸ Show Spec Comparisons</button></div>`;
+        html += `<div class="detail-content" id="${detailId}">`;
+        lineItems.forEach((li, idx) => {
+            if (!li.top_3 || li.top_3.length === 0) return;
+            html += `<div class="section-title" style="padding-top:1rem">Line Item ${idx+1}: ${(li.line_item || '').substring(0, 70)}…</div>`;
+            html += '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Spec</th><th>RFP Requires</th>';
+            li.top_3.forEach(m => { html += `<th>Rank ${m.rank} (${pct(m.spec_match_percent)})</th>`; });
+            html += '</tr></thead><tbody>';
+            const specKeys = li.top_3[0]?.comparison_table ? Object.keys(li.top_3[0].comparison_table) : [];
+            specKeys.forEach(spec => {
+                html += `<tr><td class="mono text-gold">${spec.replace(/_/g, ' ')}</td>`;
+                const rfpReq = li.top_3[0]?.comparison_table?.[spec]?.rfp_requirement || '—';
+                html += `<td>${rfpReq}</td>`;
+                li.top_3.forEach(m => {
+                    const cell = m.comparison_table?.[spec] || {};
+                    html += `<td>${cell.product_value || '—'} ${matchBadge(cell.match)}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+        });
+        html += '</div>';
+    }
+    return html;
+}
+
+/* ── PRICING AGENT ── */
+function renderPricingAgent(data) {
+    if (!data) return '<div class="state-msg"><span class="state-icon">◎</span><div class="state-text">No data</div></div>';
+
+    const items = data.line_item_pricing || [];
+
+    let html = '';
+    html += '<div class="kpi-row">';
+    html += `<div class="kpi"><div class="kpi-value gold">${fmt(data.grand_total)}</div><div class="kpi-label">Grand Total</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value">${fmt(data.total_material_cost)}</div><div class="kpi-label">Material Cost</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value">${fmt(data.total_test_cost)}</div><div class="kpi-label">Test Cost</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value">${data.line_item_count || items.length}</div><div class="kpi-label">Line Items</div></div>`;
+    html += '</div>';
+
+    if (items.length > 0) {
+        html += '<div class="section-title">Line Item Pricing Breakdown</div>';
+        html += '<div class="data-table-wrap"><table class="data-table"><thead><tr>';
+        html += '<th>#</th><th>Line Item</th><th>SKU</th><th>Unit Price</th><th>Qty (m)</th><th>Material</th><th>Tests</th><th>Test Cost</th><th>Line Total</th>';
+        html += '</tr></thead><tbody>';
+        items.forEach((r, i) => {
+            html += `<tr>
+                <td class="mono text-dim">${i+1}</td>
+                <td style="max-width:180px">${(r.line_item || '').substring(0, 55)}…</td>
+                <td class="mono text-gold nowrap" style="font-size:0.65rem">${r.sku || '—'}</td>
+                <td class="mono text-right nowrap">${fmt(r.unit_price_inr ?? r.catalogue_price)}</td>
+                <td class="mono text-right">${r.order_qty_meters ?? r.rfp_qty_meters ?? '—'}</td>
+                <td class="mono text-right nowrap">${fmt(r.material_cost_inr)}</td>
+                <td class="mono text-center">${(r.test_codes || []).length}</td>
+                <td class="mono text-right nowrap">${fmt(r.test_cost_inr)}</td>
+                <td class="mono text-right nowrap text-gold">${fmt(r.line_total_inr)}</td>
+            </tr>`;
+        });
+
+        // Totals row
+        html += `<tr style="background:var(--ink-3);font-weight:500">
+            <td colspan="5" class="text-right"><span class="mono text-dim" style="letter-spacing:0.15em;text-transform:uppercase;font-size:0.62rem">Totals</span></td>
+            <td class="mono text-right nowrap">${fmt(data.total_material_cost)}</td>
+            <td></td>
+            <td class="mono text-right nowrap">${fmt(data.total_test_cost)}</td>
+            <td class="mono text-right nowrap text-gold" style="font-weight:700">${fmt(data.grand_total)}</td>
+        </tr>`;
+        html += '</tbody></table></div>';
+    }
+    return html;
+}
+
+/* ── MASTER PHASE 2 ── */
+function renderMasterPhase2(data) {
+    if (!data) return '<div class="state-msg"><span class="state-icon">◎</span><div class="state-text">No data</div></div>';
+
+    let html = '';
+    html += '<div class="kpi-row">';
+    html += `<div class="kpi"><div class="kpi-value gold" style="font-size:1rem;line-height:1.6">${data.project_name || '—'}</div><div class="kpi-label">Project</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value">${data.line_items_count || 0}</div><div class="kpi-label">Line Items</div></div>`;
+    html += `<div class="kpi"><div class="kpi-value gold">${fmt(data.grand_total)}</div><div class="kpi-label">Grand Total</div></div>`;
+    html += '</div>';
+
+    html += '<div class="info-row"><span class="info-key">Total Material</span><span class="info-val mono">' + fmt(data.total_material) + '</span></div>';
+    html += '<div class="info-row"><span class="info-key">Total Tests</span><span class="info-val mono">' + fmt(data.total_tests) + '</span></div>';
+
+    if (data.bid_viability) {
+        const bv = data.bid_viability;
+        html += '<div class="info-row"><span class="info-key">Bid Score</span><span class="info-val mono text-' + scoreColor(bv.score) + '">' + (bv.score?.toFixed?.(1) ?? bv.score) + '/100 — ' + (bv.grade || '') + '</span></div>';
+    }
+
+    if (data.pdf_path) {
+        html += `<div class="info-row"><span class="info-key">PDF Report</span><span class="info-val mono text-success">✓ Generated</span></div>`;
+    }
+    return html;
+}
+
+/* ── GENERIC FALLBACK (JSON) ── */
+function renderGeneric(data) {
+    return '<pre style="margin:0;padding:1.5rem;background:var(--ink);overflow-x:auto;max-height:420px;font-family:DM Mono,monospace;font-size:0.75rem;line-height:1.75;color:var(--cream-dim)">' +
+           JSON.stringify(data, null, 2).replace(/</g,'&lt;') +
+           '</pre>';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AGENT CONFIG — display order, icons, renderer mapping
+   ═══════════════════════════════════════════════════════════════ */
+const AGENT_CONFIG = {
+    'sales_agent':           { icon: '🔍', label: 'Sales Agent',          desc: 'Tender discovery & selection',     renderer: renderSalesAgent },
+    'scoring_agent':         { icon: '📊', label: 'Scoring Agent',        desc: 'Bid viability scoring',            renderer: renderScoringAgent },
+    'master_agent_phase1':   { icon: '🎯', label: 'Master Agent — Phase 1', desc: 'RFP scoring & dispatch',        renderer: renderScoringAgent },
+    'technical_agent':       { icon: '⚙️', label: 'Technical Agent',      desc: 'SKU matching & spec comparison',  renderer: renderTechnicalAgent },
+    'pricing_agent':         { icon: '💰', label: 'Pricing Agent',        desc: 'Cost calculation & test pricing',  renderer: renderPricingAgent },
+    'master_agent_phase2':   { icon: '🏆', label: 'Master Agent — Phase 2', desc: 'Final consolidation & report',  renderer: renderMasterPhase2 },
+    'master_agent':          { icon: '📋', label: 'Master Agent',         desc: 'Full consolidated output',         renderer: renderGeneric },
+};
+
+const ORDERED_KEYS = ['sales_agent','scoring_agent','master_agent_phase1','technical_agent','pricing_agent','master_agent_phase2','master_agent'];
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER ALL PANELS
+   ═══════════════════════════════════════════════════════════════ */
+function renderAgents(data) {
+    const container = document.getElementById('container');
+    container.innerHTML = '';
+
+    // Build ordered list
+    const keys = [...new Set([...ORDERED_KEYS.filter(k => k in data), ...Object.keys(data).filter(k => !ORDERED_KEYS.includes(k))])];
+
+    if (keys.length === 0) {
+        container.innerHTML = '<div class="panel visible"><div class="state-msg"><span class="state-icon">◎</span><div class="state-text">No agent outputs available</div></div></div>';
+        return;
+    }
+
+    document.getElementById('agentCount').textContent = keys.length;
+    document.getElementById('toolbar').style.display = 'flex';
+
+    keys.forEach((agent, i) => {
+        const output = data[agent];
+        const cfg = AGENT_CONFIG[agent] || { icon: '◎', label: agent.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), desc: '', renderer: renderGeneric };
+
+        const hasData = output !== null && output !== undefined;
+        const isError = hasData && typeof output === 'object' && output.error;
+
+        const badgeLabel = isError ? 'Error' : hasData ? 'OK' : 'Empty';
+        const badgeCls = isError ? 'error' : hasData ? 'success' : 'empty';
+
+        const panel = document.createElement('div');
+        panel.className = 'panel';
+        panel.style.transitionDelay = `${i * 0.06}s`;
+        panel.innerHTML = `
+            <div class="agent-header">
+                <div class="agent-name-wrap">
+                    <span class="agent-icon">${cfg.icon}</span>
+                    <span class="agent-name">${cfg.label}</span>
+                    <span class="agent-desc">${cfg.desc}</span>
+                </div>
+                <div class="agent-meta">
+                    <span class="agent-badge ${badgeCls}">${badgeLabel}</span>
+                    <span class="toggle-icon">▾</span>
+                </div>
+            </div>
+            <div class="agent-body">
+                ${hasData ? cfg.renderer(output) : '<div class="state-msg"><span class="state-icon">◎</span><div class="state-text">Awaiting pipeline execution</div></div>'}
             </div>`;
 
-        document.getElementById('toolbar').style.display = 'none';
+        panel.querySelector('.agent-header').addEventListener('click', () => {
+            panel.classList.toggle('open');
+        });
 
-        fetch('/api/agents/all')
-            .then(res => res.json())
-            .then(data => renderAgents(data))
-            .catch(() => {
-                container.innerHTML = `
-                    <div class="panel visible">
-                        <div class="state-msg">
-                            <span class="state-icon">⚠</span>
-                            <div class="state-text error">Failed to load agent outputs</div>
-                        </div>
-                    </div>`;
-            });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        load();
-        document.getElementById('refreshBtn')?.addEventListener('click', load);
+        container.appendChild(panel);
+        setTimeout(() => panel.classList.add('visible'), 50 + i * 60);
     });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LOAD
+   ═══════════════════════════════════════════════════════════════ */
+function load() {
+    const container = document.getElementById('container');
+    container.innerHTML = '<div class="loading-wrap"><div class="scan-line"></div><div class="loading-label">Loading agent outputs<span>_</span></div></div>';
+    document.getElementById('toolbar').style.display = 'none';
+
+    fetch('/api/agents/all')
+        .then(res => res.json())
+        .then(data => renderAgents(data))
+        .catch(() => {
+            container.innerHTML = '<div class="panel visible"><div class="state-msg"><span class="state-icon">⚠</span><div class="state-text error">Failed to load agent outputs</div></div></div>';
+        });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    load();
+    document.getElementById('refreshBtn')?.addEventListener('click', load);
+});
 </script>
 </body>
 </html>

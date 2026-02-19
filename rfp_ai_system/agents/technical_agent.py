@@ -15,7 +15,7 @@ PS Requirements:
 
 import re
 from typing import List, Dict, Optional
-from utils.agent_io import save_agent_output
+from services.supabase_client import push_to_table
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -198,8 +198,8 @@ SPEC_TO_DB_COL = {
     "insulation_type":      "Insulation_Type",
     "cores":                "Number_of_Cores",
     "armoring":             "Armoring",
-    "conductor_size_mm2":   "Conductor_Size_mm2",
-    "temperature_rating_c": "Temperature_Rating_C",
+    "conductor_size_mm2":   "Conductor_Size",
+    "temperature_rating_c": "Temperature_Rating",
     "standards":            "Standards_Compliance",
 }
 
@@ -513,7 +513,7 @@ def technical_agent(state: dict) -> dict:
     state["tech_matches"]      = tech_matches
     state["sku_summary_table"] = summary_table   # ← clean table for Master + Pricing
 
-    save_agent_output("technical_agent", {
+    agent_output = {
         "line_items_parsed":  len(line_items),
         "spec_weightage":     "Equal — each specified param = 1/N",
         "specs_evaluated":    list(SPEC_TO_DB_COL.keys()),
@@ -538,6 +538,20 @@ def technical_agent(state: dict) -> dict:
             }
             for r in results
         ],
-    })
+    }
+
+
+    # ── Push to Supabase ──────────────────────────────────────────────────
+    import json as _json
+    project_name = state.get("rfps", [{}])[0].get("projectName", "unknown")
+    try:
+        push_to_table("technical_results", {
+            "project_name":      project_name,
+            "line_items_parsed": len(line_items),
+            "sku_summary_table": _json.loads(_json.dumps(summary_table, default=str)),
+            "full_output":       _json.loads(_json.dumps(agent_output, default=str)),
+        })
+    except Exception as e:
+        print(f"⚠️  Failed to push technical results to DB: {e}")
 
     return state

@@ -1,12 +1,14 @@
 langgraph
 langchain
-google-generativeai
+google-genai
 beautifulsoup4
 requests
 pandas
 openpyxl
 python-dotenv
 tabulate
+supabase
+gunicorn
 
 Flask==3.0.0
 flask-cors==4.0.0

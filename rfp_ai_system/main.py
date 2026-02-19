@@ -57,9 +57,9 @@ def main():
     else:
         print("No final response generated.")
 
-    pdf = final_state.get("pdf_path")
-    if pdf:
-        print(f"\n📄 PDF Report: {pdf}")
+    pdf_bytes = final_state.get("pdf_bytes")
+    if pdf_bytes:
+        print(f"\n📄 PDF Report generated in memory ({len(pdf_bytes):,} bytes)")
 
 
 if __name__ == "__main__":

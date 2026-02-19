@@ -10,6 +10,7 @@ Cross-platform fixes applied:
 """
 
 import os
+import io
 import re as _re
 from datetime import datetime
 
@@ -322,13 +323,11 @@ def _ts(header_bg=C_HEADER_BG):
 
 # ─── Main generator ───────────────────────────────────────────────────────────
 
-def generate_rfp_pdf(rfp_data: dict, output_path: str) -> str:
-    out_dir = os.path.dirname(output_path)
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
-
+def generate_rfp_pdf(rfp_data: dict) -> bytes:
+    """Generate a PDF report and return raw PDF bytes (no file written to disk)."""
+    buffer = io.BytesIO()
     doc = SimpleDocTemplate(
-        output_path, pagesize=A4,
+        buffer, pagesize=A4,
         leftMargin=0.65*inch, rightMargin=0.65*inch,
         topMargin=1.15*inch,  bottomMargin=0.9*inch,
         title="RFP Bid Evaluation Report",
@@ -770,4 +769,6 @@ def generate_rfp_pdf(rfp_data: dict, output_path: str) -> str:
     ))
 
     doc.build(story, onFirstPage=_header_footer, onLaterPages=_header_footer)
-    return output_path
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes

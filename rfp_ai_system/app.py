@@ -8,6 +8,7 @@ Passes test_services_db into state and reads from new final_response structure.
 from flask import Flask, request, jsonify, send_file, render_template
 from flask_cors import CORS
 import os
+import io
 import tempfile
 import requests
 from werkzeug.utils import secure_filename
@@ -131,7 +132,7 @@ def process_tender_data(tender_text, source_info):
     result = {
         # ── New structure (for PDF download endpoint) ──
         "final_response": final_response,
-        "pdf_path": final_state.get("pdf_path"),
+        "pdf_available": final_state.get("pdf_bytes") is not None,
         "source": source_info,
 
         # ── Fields the frontend showResults() reads ──
@@ -160,15 +161,40 @@ def index():
 
 @app.route("/api/agents/all")
 def get_all_agents():
-    agent_dir = "agent_outputs"
+    """Fetch agent outputs from Supabase, fallback to local JSON files."""
+    from services.supabase_client import get_from_table
+
     agents = {}
-    if not os.path.exists(agent_dir):
-        return jsonify({"error": "agent_outputs folder not found"}), 404
-    for file in os.listdir(agent_dir):
-        if file.endswith(".json"):
-            agent_name = file.replace(".json", "")
-            with open(os.path.join(agent_dir, file), "r") as f:
-                agents[agent_name] = json.load(f)
+
+    # --- Try Supabase first ---
+    try:
+        scoring = get_from_table("scoring_results")
+        if scoring:
+            agents["scoring_agent"] = scoring[-1]  # latest
+
+        tenders = get_from_table("tenders")
+        if tenders:
+            agents["sales_agent"] = {
+                "tenders_in_window": len(tenders),
+                "all_tenders": [
+                    {"name": t.get("project_name", ""), "deadline": t.get("submission_deadline", "")}
+                    for t in tenders
+                ],
+                "selected_rfp": tenders[0].get("project_name", ""),
+            }
+
+        tech = get_from_table("technical_results")
+        if tech:
+            agents["technical_agent"] = tech[-1].get("full_output", tech[-1])
+
+        pricing = get_from_table("pricing_results")
+        if pricing:
+            agents["pricing_agent"] = pricing[-1].get("full_output", pricing[-1])
+    except Exception as e:
+        print(f"⚠️  Supabase fetch failed, falling back to local: {e}")
+
+
+
     return jsonify(agents)
 
 
@@ -260,13 +286,11 @@ def download_report():
         # Accept either new final_response structure or legacy
         rfp_data = data.get("final_response") or data
 
+        pdf_bytes = generate_rfp_pdf(rfp_data)
         output_filename = f"rfp_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-        output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
-
-        generate_rfp_pdf(rfp_data, output_path)
 
         return send_file(
-            output_path,
+            io.BytesIO(pdf_bytes),
             as_attachment=True,
             download_name=output_filename,
             mimetype='application/pdf'

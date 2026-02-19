@@ -20,7 +20,8 @@ Phase 2 (master_agent_consolidate):
 """
 
 import os
-from utils.agent_io import save_agent_output
+import json as _json
+from services.supabase_client import push_to_table
 
 
 # ─── Role-specific summary builders ──────────────────────────────────────────
@@ -146,19 +147,18 @@ def master_agent_start(state: dict) -> dict:
     print(f"   → Technical Agent : scope_of_supply + technical_specifications")
     print(f"   → Pricing Agent   : testing_requirements + pricing_details")
 
-    save_agent_output("master_agent_phase1", {
-        "selected_rfp_name": selected.get("projectName"),
-        "issued_by":         selected.get("issued_by"),
-        "deadline":          selected.get("submissionDeadline"),
-        "bid_viability": {
-            "score":          rfp_score["final_score"],
-            "grade":          rfp_score["grade"],
+
+    # ── Push scoring results to Supabase ──────────────────────────────────
+    try:
+        push_to_table("scoring_results", {
+            "project_name":  selected.get("projectName", "unknown"),
+            "final_score":   rfp_score["final_score"],
+            "grade":         rfp_score["grade"],
             "recommendation": rfp_score["recommendation"],
-            "components":     rfp_score["component_scores"],
-        },
-        "technical_summary_keys": list(state["technical_summary"].keys()),
-        "pricing_summary_keys":   list(state["pricing_summary"].keys()),
-    })
+            "full_output":   _json.loads(_json.dumps(rfp_score, default=str)),
+        })
+    except Exception as e:
+        print(f"⚠️  Failed to push scoring results to DB: {e}")
 
     return state
 
@@ -241,29 +241,15 @@ def master_agent_consolidate(state: dict) -> dict:
 
     state["final_response"] = final_response
 
-    # ── Generate PDF ──────────────────────────────────────────────────────
+    # ── Generate PDF (in-memory, no file saved) ─────────────────────────
     try:
-        output_dir = os.path.join(os.getcwd(), "outputs")
-        os.makedirs(output_dir, exist_ok=True)
-        pdf_path = generate_rfp_pdf(
-            rfp_data=final_response,
-            output_path=os.path.join(output_dir, "rfp_bid_report.pdf"),
-        )
-        state["pdf_path"] = pdf_path
-        print(f"✅ PDF report generated: {pdf_path}")
+        pdf_bytes = generate_rfp_pdf(rfp_data=final_response)
+        state["pdf_bytes"] = pdf_bytes
+        print(f"✅ PDF report generated in memory ({len(pdf_bytes):,} bytes)")
     except Exception as e:
         print(f"❌ PDF generation failed: {e}")
-        state["pdf_path"] = None
+        state["pdf_bytes"] = None
 
-    save_agent_output("master_agent_phase2", {
-        "project_name":     final_response["project_name"],
-        "line_items_count": len(final_response["line_items"]),
-        "bid_viability":    final_response["bid_viability"],
-        "total_material":   final_response["summary"]["total_material_cost_inr"],
-        "total_tests":      final_response["summary"]["total_test_cost_inr"],
-        "grand_total":      final_response["summary"]["grand_total_inr"],
-        "pdf_path":         state.get("pdf_path"),
-    })
 
     print(f"\n🏆 FINAL RESPONSE CONSOLIDATED")
     print(f"   Project     : {final_response['project_name']}")

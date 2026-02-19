@@ -15,7 +15,7 @@ import requests
 from datetime import datetime, timedelta
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from utils.agent_io import save_agent_output
+from services.supabase_client import upsert_to_table, move_expired_tenders
 
 # ── HTTP session with retry ───────────────────────────────────────────────
 session = requests.Session()
@@ -26,7 +26,7 @@ retries = Retry(
 )
 session.mount("https://", HTTPAdapter(max_retries=retries))
 
-SCRAPER_API = "https://ey-fmcg.onrender.com/scrape?months=3"
+SCRAPER_API = "https://ey-fmcg.onrender.com/scrape?months=3&url=https://tender-frontend-eight.vercel.app"
 
 
 def parse_date(date_str):
@@ -68,6 +68,12 @@ def sales_agent(state: dict) -> dict:
         print("⚠️  No tenders returned by scraper")
         return state
 
+    # ── Step 0: Expire old tenders in Supabase ───────────────────────────
+    try:
+        move_expired_tenders()
+    except Exception as e:
+        print(f"⚠️  Tender expiration check failed: {e}")
+
     today        = datetime.today()
     three_months = today + timedelta(days=90)
 
@@ -105,6 +111,23 @@ def sales_agent(state: dict) -> dict:
     for t in upcoming:
         print(f"   • {t['projectName']} — deadline {t['submissionDeadline']}")
 
+    # ── Step 1b: Push today's valid tenders to Supabase ──────────────────
+    import json as _json
+    for t in upcoming:
+        tender_row = {
+            "project_name":       t["projectName"],
+            "issued_by":          t.get("issued_by"),
+            "category":           t.get("category"),
+            "submission_deadline": t["submissionDeadline"],
+            "tender_data":        _json.loads(_json.dumps({
+                k: v for k, v in t.items() if k != "_due_date"
+            }, default=str)),
+        }
+        try:
+            upsert_to_table("tenders", tender_row)
+        except Exception as e:
+            print(f"⚠️  Failed to push tender '{t['projectName']}' to DB: {e}")
+
     # ── Step 2: Select ONE — the most urgent (earliest deadline) ─────────
     selected = min(upcoming, key=lambda t: t["_due_date"])
 
@@ -118,17 +141,5 @@ def sales_agent(state: dict) -> dict:
     # PS: "sends this to the Main Agent" — put only the selected RFP in state
     state["rfps"] = [selected]
 
-    save_agent_output("sales_agent", {
-        "tenders_in_window": len(upcoming),
-        "all_tenders": [
-            {"name": t["projectName"], "deadline": t["submissionDeadline"]}
-            for t in upcoming
-        ],
-        "selected_rfp":       selected["projectName"],
-        "selected_deadline":  selected["submissionDeadline"],
-        "source":             SCRAPER_API,
-        "filter_window_days": 90,
-        "generated_at":       datetime.utcnow().isoformat(),
-    })
 
     return state

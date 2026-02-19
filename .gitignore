@@ -3,8 +3,16 @@ rfp_ai_system/outputs/rfp_bid_report_1.pdf
 rfp_ai_system/agent_outputs/master_agent_phase1.json
 rfp_ai_system/agent_outputs/master_agent_phase2.json
 rfp_ai_system/agent_outputs/pricing_agent.json
-rfp_ai_system/agent_outputs/pricing_agent.json
 rfp_ai_system/agent_outputs/sales_agent.json
-rfp_ai_system/agent_outputs/pricing_agent.json
 rfp_ai_system/agent_outputs/technical_agent.json
 rfp_ai_system/data/~$OEM_Product_Database.xlsx
+
+# Environment & virtual environment
+rfp_ai_system/.env
+rfp_ai_system/venv/
+**/__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/

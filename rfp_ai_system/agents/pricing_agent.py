@@ -27,7 +27,7 @@ Fix 3 — Voltage-class-aware test selection
 
 import re
 from typing import List, Dict, Optional
-from utils.agent_io import save_agent_output
+from services.supabase_client import push_to_table
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -365,7 +365,7 @@ def pricing_agent(state: dict) -> dict:
     state["consolidated_pricing"] = consolidated_pricing
     state["prices"] = [r["line_total_inr"] for r in line_item_pricing]
 
-    save_agent_output("pricing_agent", {
+    agent_output = {
         "line_item_count": len(line_item_pricing),
         "line_item_pricing": [
             {
@@ -388,7 +388,22 @@ def pricing_agent(state: dict) -> dict:
         "total_material_cost": total_material_cost,
         "total_test_cost":     total_test_cost,
         "grand_total":         grand_total,
-    })
+    }
+
+
+    # ── Push to Supabase ──────────────────────────────────────────────────
+    import json as _json
+    project_name = state.get("rfps", [{}])[0].get("projectName", "unknown")
+    try:
+        push_to_table("pricing_results", {
+            "project_name":      project_name,
+            "grand_total":       grand_total,
+            "total_material_cost": total_material_cost,
+            "total_test_cost":   total_test_cost,
+            "full_output":       _json.loads(_json.dumps(agent_output, default=str)),
+        })
+    except Exception as e:
+        print(f"⚠️  Failed to push pricing results to DB: {e}")
 
     print(f"\n   {'─'*45}")
     print(f"   Total Material : ₹{total_material_cost:,.0f}")
