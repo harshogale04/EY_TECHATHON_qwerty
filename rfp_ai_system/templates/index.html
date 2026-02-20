@@ -38,7 +38,6 @@
             overflow-x: hidden;
         }
 
-        /* ─── NOISE TEXTURE ─── */
         body::before {
             content: '';
             position: fixed;
@@ -49,7 +48,6 @@
             opacity: 0.6;
         }
 
-        /* ─── AMBIENT GLOW ─── */
         body::after {
             content: '';
             position: fixed;
@@ -154,7 +152,6 @@
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
 
-        /* ─── CORNER ACCENTS ─── */
         .panel::after {
             content: '';
             position: absolute;
@@ -165,74 +162,14 @@
             pointer-events: none;
         }
 
-        /* ─── TABS ─── */
-        .tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            border-bottom: 1px solid var(--gold-border);
-        }
-
-        .tab {
-            padding: 1.2rem;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            font-weight: 500;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.25s;
-            position: relative;
-        }
-
-        .tab:first-child { border-right: 1px solid var(--gold-border); }
-
-        .tab:hover { color: var(--cream); background: var(--mist); }
-
-        .tab.active {
-            color: var(--gold);
-            background: var(--gold-dim);
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 1px;
-            background: var(--gold);
-        }
-
-        .tab-dot {
-            display: inline-block;
-            width: 5px; height: 5px;
-            background: currentColor;
-            border-radius: 50%;
-            margin-right: 0.6rem;
-            vertical-align: middle;
-            margin-bottom: 1px;
-        }
-
         /* ─── FORM AREA ─── */
-        .tab-content {
-            display: none;
+        .form-area {
             padding: 2.5rem;
-        }
-
-        .tab-content.active { display: block; }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.25rem;
         }
 
         .form-group {
             margin-bottom: 1.5rem;
         }
-
-        .form-group.full { grid-column: 1 / -1; }
 
         label {
             display: block;
@@ -247,9 +184,7 @@
 
         label .req { color: var(--danger); margin-left: 2px; }
 
-        input[type="text"],
-        input[type="url"],
-        input[type="date"] {
+        input[type="url"] {
             width: 100%;
             padding: 0.85rem 1rem;
             background: var(--ink-3);
@@ -263,80 +198,11 @@
             outline: none;
         }
 
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(0.4) sepia(1) saturate(1.5) hue-rotate(10deg);
-            cursor: pointer;
-        }
-
         input::placeholder { color: var(--text-muted); }
 
         input:focus {
             border-color: var(--gold);
             box-shadow: 0 0 0 2px var(--gold-dim), inset 0 1px 0 rgba(255,255,255,0.03);
-        }
-
-        /* ─── FILE UPLOAD ─── */
-        .drop-zone {
-            position: relative;
-            border: 1px dashed rgba(201,168,76,0.3);
-            border-radius: 2px;
-            padding: 3rem 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.25s;
-            background: var(--ink-3);
-            overflow: hidden;
-        }
-
-        .drop-zone::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06), transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .drop-zone:hover::before,
-        .drop-zone.over::before { opacity: 1; }
-
-        .drop-zone:hover,
-        .drop-zone.over {
-            border-color: var(--gold);
-        }
-
-        .drop-zone input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-        }
-
-        .drop-icon {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
-            display: block;
-            opacity: 0.5;
-        }
-
-        .drop-label {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            font-weight: 300;
-        }
-
-        .drop-label strong {
-            color: var(--gold);
-            font-weight: 500;
-        }
-
-        .file-chosen {
-            margin-top: 0.75rem;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--gold);
         }
 
         /* ─── SUBMIT BUTTON ─── */
@@ -459,10 +325,7 @@
         @keyframes blink { 50% { opacity: 0; } }
 
         /* ─── RESULTS ─── */
-        .results {
-            display: none;
-        }
-
+        .results { display: none; }
         .results.show { display: block; }
 
         .results-head {
@@ -491,10 +354,7 @@
             color: var(--cream);
         }
 
-        /* Score Dial */
-        .score-wrap {
-            text-align: right;
-        }
+        .score-wrap { text-align: right; }
 
         .score-num {
             font-family: 'Playfair Display', serif;
@@ -504,9 +364,9 @@
             color: var(--gold);
         }
 
-        .score-num.high { color: var(--success); }
+        .score-num.high   { color: var(--success); }
         .score-num.medium { color: var(--warning); }
-        .score-num.low { color: var(--danger); }
+        .score-num.low    { color: var(--danger); }
 
         .score-label {
             font-family: 'DM Mono', monospace;
@@ -516,7 +376,6 @@
             text-transform: uppercase;
         }
 
-        /* Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -527,12 +386,14 @@
             padding: 1.75rem 1.5rem;
             border-right: 1px solid var(--gold-border);
             position: relative;
-            transition: background 0.2s;
+            transition: background 0.2s, opacity 0.4s, transform 0.4s;
+            opacity: 0;
+            transform: translateY(8px);
         }
 
         .stat:last-child { border-right: none; }
-
         .stat:hover { background: var(--mist); }
+        .stat.visible { opacity: 1; transform: none; }
 
         .stat-num {
             font-family: 'Playfair Display', serif;
@@ -545,7 +406,7 @@
 
         .stat-num.success { color: var(--success); }
         .stat-num.warning { color: var(--warning); }
-        .stat-num.danger { color: var(--danger); }
+        .stat-num.danger  { color: var(--danger); }
 
         .stat-key {
             font-family: 'DM Mono', monospace;
@@ -563,7 +424,6 @@
             transition: width 1s cubic-bezier(0.4,0,0.2,1);
         }
 
-        /* Actions */
         .results-actions {
             padding: 1.75rem 2.5rem;
             display: flex;
@@ -585,6 +445,7 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 1px solid;
+            text-decoration: none;
         }
 
         .btn-act-gold {
@@ -621,17 +482,13 @@
             color: var(--text-muted);
         }
 
-        .footer-note span {
-            color: var(--gold);
-            opacity: 0.6;
-        }
+        .footer-note span { color: var(--gold); opacity: 0.6; }
 
         /* ─── RESPONSIVE ─── */
         @media (max-width: 680px) {
-            .form-row { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .stat:nth-child(2) { border-right: none; }
-            .tab-content { padding: 1.75rem; }
+            .form-area { padding: 1.75rem; }
             .results-head { flex-direction: column; align-items: flex-start; }
             .score-wrap { text-align: left; }
             .score-num { font-size: 2.5rem; }
@@ -642,27 +499,17 @@
             .stats-grid { grid-template-columns: 1fr; }
             .stat { border-right: none; }
         }
-
-        /* ─── STAGGER ANIMATION FOR STATS ─── */
-        .stat {
-            opacity: 0;
-            transform: translateY(8px);
-            transition: opacity 0.4s, transform 0.4s, background 0.2s;
-        }
-
-        .stat.visible {
-            opacity: 1;
-            transform: none;
-        }
     </style>
 </head>
 <body>
 <div class="page-wrap">
+
     <div style="display:flex;justify-content:flex-end;padding:1.5rem 0 0">
         <a href="/agents_all" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.55rem 1.1rem;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;border:1px solid rgba(201,168,76,0.25);border-radius:2px;color:rgba(232,224,208,0.3);text-decoration:none;transition:all 0.2s" onmouseover="this.style.color='#c9a84c';this.style.borderColor='#c9a84c'" onmouseout="this.style.color='rgba(232,224,208,0.3)';this.style.borderColor='rgba(201,168,76,0.25)'">
             ◎ Agent Outputs →
         </a>
     </div>
+
     <header>
         <div class="header-rule"></div>
         <p class="brand">TenderIntel</p>
@@ -672,72 +519,14 @@
 
     <div class="panel">
 
-        <!-- Error -->
         <div class="error-bar" id="errorBar"></div>
 
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" data-tab="url">
-                <span class="tab-dot"></span>Analyze URL
-            </button>
-            <button class="tab" data-tab="pdf">
-                <span class="tab-dot"></span>Upload PDF
-            </button>
-        </div>
-
-        <!-- URL Tab -->
-        <div class="tab-content active" id="urlTab">
+        <!-- Form -->
+        <div class="form-area" id="formArea">
             <form id="urlForm">
                 <div class="form-group">
                     <label>Tender URL <span class="req">*</span></label>
                     <input type="url" id="tenderUrl" placeholder="https://example.gov/tender-document" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Tender Name</label>
-                        <input type="text" id="urlTenderName" placeholder="Railway Electrification 2025">
-                    </div>
-                    <div class="form-group">
-                        <label>Issuing Authority</label>
-                        <input type="text" id="urlIssuer" placeholder="Indian Railways">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Submission Deadline</label>
-                    <input type="date" id="urlDeadline">
-                </div>
-                <button type="submit" class="btn-submit">
-                    <span>Run Analysis</span>
-                    <span class="arrow">→</span>
-                </button>
-            </form>
-        </div>
-
-        <!-- PDF Tab -->
-        <div class="tab-content" id="pdfTab">
-            <form id="pdfForm">
-                <div class="form-group">
-                    <label>Tender Document <span class="req">*</span></label>
-                    <div class="drop-zone" id="dropZone">
-                        <input type="file" id="pdfFile" accept=".pdf" required>
-                        <span class="drop-icon">⬆</span>
-                        <div class="drop-label"><strong>Drop PDF here</strong> or click to browse</div>
-                        <div class="file-chosen" id="fileName"></div>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Tender Name</label>
-                        <input type="text" id="pdfTenderName" placeholder="Metro Rail Cable Procurement">
-                    </div>
-                    <div class="form-group">
-                        <label>Issuing Authority</label>
-                        <input type="text" id="pdfIssuer" placeholder="Delhi Metro Rail Corp">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Submission Deadline</label>
-                    <input type="date" id="pdfDeadline">
                 </div>
                 <button type="submit" class="btn-submit">
                     <span>Run Analysis</span>
@@ -769,12 +558,12 @@
                 <div class="stat" style="transition-delay:0.05s">
                     <div class="stat-num" id="estimatedPrice">₹0</div>
                     <div class="stat-key">Est. Price</div>
-                    <div class="stat-bar" id="bar0" style="width:0"></div>
+                    <div class="stat-bar" style="width:0"></div>
                 </div>
                 <div class="stat" style="transition-delay:0.15s">
                     <div class="stat-num" id="matchedProducts">0</div>
                     <div class="stat-key">Matched Products</div>
-                    <div class="stat-bar" id="bar1" style="width:0"></div>
+                    <div class="stat-bar" style="width:0"></div>
                 </div>
                 <div class="stat" style="transition-delay:0.25s">
                     <div class="stat-num" id="technicalMatch">0%</div>
@@ -784,134 +573,76 @@
                 <div class="stat" style="transition-delay:0.35s">
                     <div class="stat-num" id="recommendation" style="font-size:1.1rem;line-height:1.3">—</div>
                     <div class="stat-key">Recommendation</div>
-                    <div class="stat-bar" id="bar3" style="width:100%"></div>
+                    <div class="stat-bar" style="width:100%"></div>
                 </div>
             </div>
 
             <div class="results-actions">
-                <a href="/agents-all.html" class="btn-act btn-act-outline">◎ View Agent Outputs</a>
-                <button class="btn-act btn-act-gold" id="downloadBtn">
-                    ↓ Download Report
-                </button>
-                <button class="btn-act btn-act-outline" id="analyzeNewBtn">
-                    ↺ New Analysis
-                </button>
+                <a href="/agents_all" class="btn-act btn-act-outline">◎ View Agent Outputs</a>
+                <button class="btn-act btn-act-gold" id="downloadBtn">↓ Download Report</button>
+                <button class="btn-act btn-act-outline" id="analyzeNewBtn">↺ New Analysis</button>
             </div>
         </div>
+
     </div>
 
     <p class="footer-note"><span>//</span> TenderIntel · AI-Powered Procurement Intelligence <span>//</span></p>
 </div>
 
 <script>
-    // ─── TABS ───
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            const t = tab.dataset.tab;
-            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(t + 'Tab').classList.add('active');
-        });
-    });
-
-    // ─── FILE UPLOAD ───
-    const dropZone = document.getElementById('dropZone');
-    const pdfFile = document.getElementById('pdfFile');
-    const fileName = document.getElementById('fileName');
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => {
-        dropZone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); });
-    });
-
-    ['dragenter', 'dragover'].forEach(e =>
-        dropZone.addEventListener(e, () => dropZone.classList.add('over'))
-    );
-    ['dragleave', 'drop'].forEach(e =>
-        dropZone.addEventListener(e, () => dropZone.classList.remove('over'))
-    );
-
-    dropZone.addEventListener('drop', e => {
-        if (e.dataTransfer.files.length) {
-            pdfFile.files = e.dataTransfer.files;
-            updateFile();
-        }
-    });
-
-    pdfFile.addEventListener('change', updateFile);
-
-    function updateFile() {
-        fileName.textContent = pdfFile.files.length ? `[ ${pdfFile.files[0].name} ]` : '';
-    }
-
-    // ─── ANALYSIS ───
     let analysisData = null;
 
     document.getElementById('urlForm').addEventListener('submit', async e => {
         e.preventDefault();
-        await runAnalysis('url', {
-            url: document.getElementById('tenderUrl').value,
-            name: document.getElementById('urlTenderName').value,
-            issuer: document.getElementById('urlIssuer').value,
-            deadline: document.getElementById('urlDeadline').value
-        });
+        const url = document.getElementById('tenderUrl').value.trim();
+        if (!url) return;
+        await runAnalysis(url);
     });
 
-    document.getElementById('pdfForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        const fd = new FormData();
-        fd.append('file', pdfFile.files[0]);
-        fd.append('name', document.getElementById('pdfTenderName').value);
-        fd.append('issuer', document.getElementById('pdfIssuer').value);
-        fd.append('deadline', document.getElementById('pdfDeadline').value);
-        await runAnalysis('pdf', fd);
-    });
-
-    async function runAnalysis(type, data) {
-        hideTabs();
-        hideResults();
+    async function runAnalysis(url) {
+        hideForm();
         clearError();
         showLoading();
 
         try {
-            const isJson = !(data instanceof FormData);
-            const res = await fetch(type === 'url' ? '/api/analyze-url' : '/api/analyze-pdf', {
+            const res = await fetch('/api/analyze-url', {
                 method: 'POST',
-                headers: isJson ? { 'Content-Type': 'application/json' } : {},
-                body: isJson ? JSON.stringify(data) : data
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
             });
             const json = await res.json();
             if (json.success) {
                 analysisData = json.data;
                 showResults(json.data);
             } else {
-                showTabs();
+                showForm();
                 showError(json.error || 'Analysis failed.');
             }
         } catch (err) {
-            showTabs();
+            showForm();
             showError('Network error: ' + err.message);
         } finally {
             hideLoading();
         }
     }
 
-    function showResults(data) {
-        const score = Math.round(data.score * 100);
+    function showResults(d) {
+        const score = Math.round(d.score * 100);
         const scoreEl = document.getElementById('overallScore');
         scoreEl.textContent = score + '%';
         scoreEl.className = 'score-num ' + (score >= 75 ? 'high' : score >= 50 ? 'medium' : 'low');
 
         document.getElementById('estimatedPrice').textContent =
-            '₹' + Number(data.price).toLocaleString('en-IN');
+            '₹' + Number(d.price).toLocaleString('en-IN');
 
-        const matches = data.technical_matches?.length ?? 0;
-        document.getElementById('matchedProducts').textContent = matches;
+        document.getElementById('matchedProducts').textContent =
+            d.technical_matches?.length ?? 0;
 
-        const tech = data.detailed_score?.component_scores?.technical_match ?? 0;
+        const tech = d.detailed_score?.component_scores?.technical_match ?? 0;
         document.getElementById('technicalMatch').textContent = Math.round(tech) + '%';
+        document.getElementById('bar2').style.width = Math.round(tech) + '%';
 
-        const rec = data.detailed_score?.recommendation ?? 'N/A';
+        const rec = d.detailed_score?.recommendation ?? 'N/A';
         const recEl = document.getElementById('recommendation');
         recEl.textContent = rec;
         recEl.className = 'stat-num';
@@ -919,15 +650,8 @@
         else if (rec.includes('REVIEW')) recEl.classList.add('warning');
         else if (rec.includes('NOT')) recEl.classList.add('danger');
 
-        // Stat bars
-        document.getElementById('bar2').style.width = Math.round(tech) + '%';
-
         document.getElementById('results').classList.add('show');
-
-        // Stagger in stats
-        setTimeout(() => {
-            document.querySelectorAll('.stat').forEach(s => s.classList.add('visible'));
-        }, 50);
+        setTimeout(() => document.querySelectorAll('.stat').forEach(s => s.classList.add('visible')), 50);
     }
 
     document.getElementById('downloadBtn').addEventListener('click', async () => {
@@ -958,57 +682,23 @@
 
     document.getElementById('analyzeNewBtn').addEventListener('click', () => {
         document.getElementById('urlForm').reset();
-        document.getElementById('pdfForm').reset();
-        fileName.textContent = '';
         analysisData = null;
-        hideResults();
-        showTabs();
+        document.getElementById('results').classList.remove('show');
         document.querySelectorAll('.stat').forEach(s => s.classList.remove('visible'));
+        clearError();
+        showForm();
     });
 
-    // ─── UI HELPERS ───
+    function showForm()  { document.getElementById('formArea').style.display = ''; }
+    function hideForm()  { document.getElementById('formArea').style.display = 'none'; }
     function showLoading() { document.getElementById('loading').classList.add('show'); }
     function hideLoading() { document.getElementById('loading').classList.remove('show'); }
-    function showResults(d) {
-        const score = Math.round(d.score * 100);
-        const scoreEl = document.getElementById('overallScore');
-        scoreEl.textContent = score + '%';
-        scoreEl.className = 'score-num ' + (score >= 75 ? 'high' : score >= 50 ? 'medium' : 'low');
-        document.getElementById('estimatedPrice').textContent = '₹' + Number(d.price).toLocaleString('en-IN');
-        const matches = d.technical_matches?.length ?? 0;
-        document.getElementById('matchedProducts').textContent = matches;
-        const tech = d.detailed_score?.component_scores?.technical_match ?? 0;
-        document.getElementById('technicalMatch').textContent = Math.round(tech) + '%';
-        const rec = d.detailed_score?.recommendation ?? 'N/A';
-        const recEl = document.getElementById('recommendation');
-        recEl.textContent = rec;
-        recEl.className = 'stat-num';
-        if (rec.includes('PROCEED') || rec.includes('RECOMMEND')) recEl.classList.add('success');
-        else if (rec.includes('REVIEW')) recEl.classList.add('warning');
-        else if (rec.includes('NOT')) recEl.classList.add('danger');
-        document.getElementById('bar2').style.width = Math.round(tech) + '%';
-        document.getElementById('results').classList.add('show');
-        setTimeout(() => document.querySelectorAll('.stat').forEach(s => s.classList.add('visible')), 50);
-    }
-    function hideResults() { document.getElementById('results').classList.remove('show'); }
-    function hideTabs() {
-        document.querySelectorAll('.tab-content').forEach(x => x.style.visibility = 'hidden');
-        document.querySelector('.tabs').style.opacity = '0.3';
-        document.querySelector('.tabs').style.pointerEvents = 'none';
-    }
-    function showTabs() {
-        document.querySelectorAll('.tab-content').forEach(x => x.style.visibility = '');
-        document.querySelector('.tabs').style.opacity = '';
-        document.querySelector('.tabs').style.pointerEvents = '';
-    }
     function showError(msg) {
         const el = document.getElementById('errorBar');
         el.textContent = '⚠ ' + msg;
         el.classList.add('show');
     }
-    function clearError() {
-        document.getElementById('errorBar').classList.remove('show');
-    }
+    function clearError() { document.getElementById('errorBar').classList.remove('show'); }
 </script>
 </body>
 </html>
