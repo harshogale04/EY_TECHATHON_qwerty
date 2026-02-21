@@ -184,8 +184,36 @@
 
         label .req { color: var(--danger); margin-left: 2px; }
 
+        /* ─── URL LIST ─── */
+        .url-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .url-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: slideIn 0.2s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .url-index {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            min-width: 1.4rem;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
         input[type="url"] {
-            width: 100%;
+            flex: 1;
             padding: 0.85rem 1rem;
             background: var(--ink-3);
             border: 1px solid rgba(255,255,255,0.08);
@@ -196,6 +224,7 @@
             font-weight: 300;
             transition: border-color 0.2s, box-shadow 0.2s;
             outline: none;
+            width: 100%;
         }
 
         input::placeholder { color: var(--text-muted); }
@@ -203,6 +232,82 @@
         input:focus {
             border-color: var(--gold);
             box-shadow: 0 0 0 2px var(--gold-dim), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+
+        .btn-remove-url {
+            flex-shrink: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid rgba(224, 91, 91, 0.25);
+            border-radius: 2px;
+            color: var(--danger);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.6;
+            line-height: 1;
+        }
+
+        .btn-remove-url:hover {
+            background: rgba(224, 91, 91, 0.1);
+            border-color: var(--danger);
+            opacity: 1;
+        }
+
+        /* ─── ADD URL BUTTON ─── */
+        .btn-add-url {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.55rem 1rem;
+            margin-top: 0.75rem;
+            background: transparent;
+            border: 1px dashed rgba(201, 168, 76, 0.3);
+            border-radius: 2px;
+            color: var(--text-muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add-url:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: var(--gold-dim);
+        }
+
+        .url-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-left: auto;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .url-count-badge .count {
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        .label-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.6rem;
+        }
+
+        .label-row label {
+            margin-bottom: 0;
         }
 
         /* ─── SUBMIT BUTTON ─── */
@@ -213,7 +318,7 @@
             gap: 0.6rem;
             width: 100%;
             padding: 1rem 2rem;
-            margin-top: 0.5rem;
+            margin-top: 1.25rem;
             background: var(--gold);
             color: var(--ink);
             border: none;
@@ -258,6 +363,32 @@
         }
 
         .arrow { font-size: 1rem; }
+
+        /* ─── URL SUMMARY CHIPS (shown in loading/results) ─── */
+        .url-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            padding: 1rem 2.5rem 0;
+        }
+
+        .url-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.25rem 0.65rem;
+            background: var(--gold-dim);
+            border: 1px solid var(--gold-border);
+            border-radius: 2px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--gold);
+            letter-spacing: 0.08em;
+            max-width: 280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
         /* ─── ERROR ─── */
         .error-bar {
@@ -322,6 +453,14 @@
             animation: blink 1.2s step-end infinite;
         }
 
+        .loading-urls {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            justify-content: center;
+        }
+
         @keyframes blink { 50% { opacity: 0; } }
 
         /* ─── RESULTS ─── */
@@ -352,6 +491,13 @@
             font-size: 1.6rem;
             font-weight: 700;
             color: var(--cream);
+        }
+
+        .results-sources {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.6rem;
         }
 
         .score-wrap { text-align: right; }
@@ -525,11 +671,24 @@
         <div class="form-area" id="formArea">
             <form id="urlForm">
                 <div class="form-group">
-                    <label>Tender URL <span class="req">*</span></label>
-                    <input type="url" id="tenderUrl" placeholder="https://example.gov/tender-document" required>
+                    <div class="label-row">
+                        <label>Tender URLs <span class="req">*</span></label>
+                        <span class="url-count-badge">
+                            <span class="count" id="urlCountDisplay">1</span> URL added
+                        </span>
+                    </div>
+
+                    <div class="url-list" id="urlList">
+                        <!-- URL rows injected by JS -->
+                    </div>
+
+                    <button type="button" class="btn-add-url" id="addUrlBtn">
+                        + Add Another URL
+                    </button>
                 </div>
-                <button type="submit" class="btn-submit">
-                    <span>Run Analysis</span>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span id="submitLabel">Run Analysis</span>
                     <span class="arrow">→</span>
                 </button>
             </form>
@@ -538,7 +697,8 @@
         <!-- Loading -->
         <div class="loading" id="loading">
             <div class="scan-line"></div>
-            <div class="loading-label">Processing document<span>_</span></div>
+            <div class="loading-label">Processing <span id="loadingUrlCount">1</span> document<span id="loadingPlural"></span><span>_</span></div>
+            <div class="loading-urls" id="loadingUrlChips"></div>
         </div>
 
         <!-- Results -->
@@ -547,6 +707,7 @@
                 <div>
                     <div class="results-label">Analysis Complete</div>
                     <div class="results-title">Bid Assessment</div>
+                    <div class="results-sources" id="resultUrlChips"></div>
                 </div>
                 <div class="score-wrap">
                     <div class="score-num" id="overallScore">—</div>
@@ -591,29 +752,134 @@
 
 <script>
     let analysisData = null;
+    let urlCounter = 0;
+
+    // ─── URL ROW MANAGEMENT ───────────────────────────────────────
+
+    function createUrlRow(index) {
+        urlCounter++;
+        const id = `url_${urlCounter}`;
+        const row = document.createElement('div');
+        row.className = 'url-row';
+        row.dataset.id = id;
+
+        row.innerHTML = `
+            <span class="url-index">${index}.</span>
+            <input type="url" id="${id}" placeholder="https://example.gov/tender-document-${index}" autocomplete="off">
+            <button type="button" class="btn-remove-url" title="Remove URL" data-target="${id}">×</button>
+        `;
+
+        row.querySelector('.btn-remove-url').addEventListener('click', () => {
+            removeUrlRow(row);
+        });
+
+        return row;
+    }
+
+    function addUrlRow() {
+        const list = document.getElementById('urlList');
+        const index = list.children.length + 1;
+        const row = createUrlRow(index);
+        list.appendChild(row);
+        row.querySelector('input').focus();
+        updateUI();
+    }
+
+    function removeUrlRow(row) {
+        const list = document.getElementById('urlList');
+        if (list.children.length <= 1) return; // always keep at least 1
+        row.remove();
+        reindexRows();
+        updateUI();
+    }
+
+    function reindexRows() {
+        const rows = document.querySelectorAll('#urlList .url-row');
+        rows.forEach((row, i) => {
+            row.querySelector('.url-index').textContent = (i + 1) + '.';
+        });
+    }
+
+    function getUrls() {
+        return Array.from(document.querySelectorAll('#urlList input[type="url"]'))
+            .map(inp => inp.value.trim())
+            .filter(v => v.length > 0);
+    }
+
+    function updateUI() {
+        const count = document.querySelectorAll('#urlList .url-row').length;
+        document.getElementById('urlCountDisplay').textContent = count;
+
+        // Show/hide remove buttons — hide when only 1 row
+        document.querySelectorAll('.btn-remove-url').forEach(btn => {
+            btn.style.visibility = count > 1 ? 'visible' : 'hidden';
+        });
+
+        // Update submit label
+        const urls = getUrls();
+        const n = urls.length || count;
+        document.getElementById('submitLabel').textContent =
+            n > 1 ? `Run Combined Analysis (${n} URLs)` : 'Run Analysis';
+    }
+
+    // Init with first row
+    addUrlRow();
+    updateUI();
+
+    document.getElementById('addUrlBtn').addEventListener('click', addUrlRow);
+
+    // Live update submit label as user types
+    document.getElementById('urlList').addEventListener('input', updateUI);
+
+    // ─── FORM SUBMIT ──────────────────────────────────────────────
 
     document.getElementById('urlForm').addEventListener('submit', async e => {
         e.preventDefault();
-        const url = document.getElementById('tenderUrl').value.trim();
-        if (!url) return;
-        await runAnalysis(url);
+        const urls = getUrls();
+
+        if (urls.length === 0) {
+            showError('Please enter at least one valid URL.');
+            return;
+        }
+
+        // Basic URL validation
+        for (const url of urls) {
+            try { new URL(url); } catch {
+                showError(`Invalid URL: ${url}`);
+                return;
+            }
+        }
+
+        await runAnalysis(urls);
     });
 
-    async function runAnalysis(url) {
+    // ─── ANALYSIS ────────────────────────────────────────────────
+
+    async function runAnalysis(urls) {
         hideForm();
         clearError();
+
+        // Show URL chips in loading state
+        const chips = document.getElementById('loadingUrlChips');
+        chips.innerHTML = urls.map(u => `
+            <span class="url-chip">⬡ ${truncateUrl(u)}</span>
+        `).join('');
+
+        document.getElementById('loadingUrlCount').textContent = urls.length;
+        document.getElementById('loadingPlural').textContent = urls.length > 1 ? 's' : '';
+
         showLoading();
 
         try {
             const res = await fetch('/api/analyze-url', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url })
+                body: JSON.stringify({ urls })           // ← send array
             });
             const json = await res.json();
             if (json.success) {
                 analysisData = json.data;
-                showResults(json.data);
+                showResults(json.data, urls);
             } else {
                 showForm();
                 showError(json.error || 'Analysis failed.');
@@ -626,7 +892,9 @@
         }
     }
 
-    function showResults(d) {
+    // ─── RESULTS ─────────────────────────────────────────────────
+
+    function showResults(d, urls) {
         const score = Math.round(d.score * 100);
         const scoreEl = document.getElementById('overallScore');
         scoreEl.textContent = score + '%';
@@ -650,9 +918,18 @@
         else if (rec.includes('REVIEW')) recEl.classList.add('warning');
         else if (rec.includes('NOT')) recEl.classList.add('danger');
 
+        // Show source URL chips in results header
+        const resultChips = document.getElementById('resultUrlChips');
+        const displayUrls = urls || (d.source?.urls ?? []);
+        resultChips.innerHTML = displayUrls.map((u, i) => `
+            <span class="url-chip">⬡ URL ${i+1}: ${truncateUrl(u)}</span>
+        `).join('');
+
         document.getElementById('results').classList.add('show');
         setTimeout(() => document.querySelectorAll('.stat').forEach(s => s.classList.add('visible')), 50);
     }
+
+    // ─── DOWNLOAD ────────────────────────────────────────────────
 
     document.getElementById('downloadBtn').addEventListener('click', async () => {
         if (!analysisData) return;
@@ -680,25 +957,49 @@
         }
     });
 
+    // ─── NEW ANALYSIS ─────────────────────────────────────────────
+
     document.getElementById('analyzeNewBtn').addEventListener('click', () => {
-        document.getElementById('urlForm').reset();
         analysisData = null;
         document.getElementById('results').classList.remove('show');
         document.querySelectorAll('.stat').forEach(s => s.classList.remove('visible'));
         clearError();
+
+        // Reset URL list to a single empty row
+        document.getElementById('urlList').innerHTML = '';
+        urlCounter = 0;
+        addUrlRow();
+        updateUI();
+
         showForm();
     });
 
-    function showForm()  { document.getElementById('formArea').style.display = ''; }
-    function hideForm()  { document.getElementById('formArea').style.display = 'none'; }
+    // ─── HELPERS ─────────────────────────────────────────────────
+
+    function truncateUrl(url) {
+        try {
+            const u = new URL(url);
+            const display = u.hostname + u.pathname;
+            return display.length > 38 ? display.slice(0, 35) + '…' : display;
+        } catch {
+            return url.length > 38 ? url.slice(0, 35) + '…' : url;
+        }
+    }
+
+    function showForm()    { document.getElementById('formArea').style.display = ''; }
+    function hideForm()    { document.getElementById('formArea').style.display = 'none'; }
     function showLoading() { document.getElementById('loading').classList.add('show'); }
     function hideLoading() { document.getElementById('loading').classList.remove('show'); }
+
     function showError(msg) {
         const el = document.getElementById('errorBar');
         el.textContent = '⚠ ' + msg;
         el.classList.add('show');
     }
-    function clearError() { document.getElementById('errorBar').classList.remove('show'); }
+
+    function clearError() {
+        document.getElementById('errorBar').classList.remove('show');
+    }
 </script>
 </body>
 </html>

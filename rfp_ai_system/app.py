@@ -2,7 +2,8 @@
 """
 Flask Web Application for RFP Tender Analysis (Updated)
 =========================================================
-Passes test_services_db into state and reads from new final_response structure.
+Multi-URL support: passes source_urls list into graph state so
+sales_agent scrapes all of them and picks the best tender overall.
 """
 
 from flask import Flask, request, jsonify, send_file, render_template
@@ -33,7 +34,6 @@ MAX_FILE_SIZE = 16 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
-# Load both DB sheets at startup
 try:
     PRODUCT_DB = load_oem(OEM_PATH)
     TEST_SERVICES_DB = pd.read_excel(OEM_PATH, sheet_name="Testing Services")
@@ -60,22 +60,10 @@ def extract_text_from_pdf(pdf_path):
     return text.strip()
 
 
-def scrape_tender_url(url):
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        return {
-            'raw_content': response.text[:10000],
-            'url': url,
-            'scraped_at': datetime.now().isoformat()
-        }
-    except Exception as e:
-        raise Exception(f"Failed to scrape URL: {str(e)}")
-
-
 def process_tender_data(tender_text, source_info):
     """
-    Run one tender through the full pipeline and return the final_response.
+    Run one tender through the full pipeline (sales agent bypassed).
+    Used by the PDF upload flow — RFP injected directly into state.
     """
     if PRODUCT_DB is None:
         raise Exception("Product database not loaded")
@@ -102,22 +90,44 @@ def process_tender_data(tender_text, source_info):
     })
 
     graph = build_graph()
-
     state = {
         "product_db": PRODUCT_DB,
         "test_services_db": TEST_SERVICES_DB,
-        "rfps": [structured_rfp],  # sales agent normally fills this; we inject directly
+        "rfps": [structured_rfp],
+    }
+    final_state = graph.invoke(state)
+    return _build_result(final_state, source_info)
+
+
+def process_tender_urls(urls, source_info):
+    """
+    Run the full pipeline with the sales agent active.
+    Passes source_urls into state — sales_agent scrapes every URL,
+    pools all tenders found across all sites, picks the best one.
+    """
+    if PRODUCT_DB is None:
+        raise Exception("Product database not loaded")
+
+    graph = build_graph()
+    state = {
+        "product_db": PRODUCT_DB,
+        "test_services_db": TEST_SERVICES_DB,
+        "source_urls": urls,   # ← sales_agent reads this
     }
 
+    print(f"🚀 Running pipeline with {len(urls)} source URL(s): {urls}")
     final_state = graph.invoke(state)
+    return _build_result(final_state, source_info)
 
-    final_response = final_state.get("final_response", {})
-    bid_viability = final_response.get("bid_viability", {})
-    line_items = final_response.get("line_items", [])
-    summary = final_response.get("summary", {})
+
+def _build_result(final_state, source_info):
+    """Shared helper: extract frontend-ready dict from final graph state."""
+    final_response   = final_state.get("final_response", {})
+    bid_viability    = final_response.get("bid_viability", {})
+    line_items       = final_response.get("line_items", [])
+    summary          = final_response.get("summary", {})
     component_scores = bid_viability.get("component_scores", {})
 
-    # Compute average technical match % across all line items
     tech_match_scores = []
     for item in line_items:
         top3 = item.get("top_3_recommendations", [])
@@ -125,33 +135,24 @@ def process_tender_data(tender_text, source_info):
             tech_match_scores.append(top3[0].get("spec_match_pct", 0))
     avg_tech_match = (sum(tech_match_scores) / len(tech_match_scores)) if tech_match_scores else 0
 
-    # Normalise bid viability score: backend stores 0-100, frontend expects 0-1
     raw_score = bid_viability.get("score", 0)
     normalised_score = raw_score / 100.0 if raw_score > 1 else raw_score
 
-    result = {
-        # ── New structure (for PDF download endpoint) ──
-        "final_response": final_response,
-        "pdf_available": final_state.get("pdf_bytes") is not None,
-        "source": source_info,
-
-        # ── Fields the frontend showResults() reads ──
-        "score": normalised_score,                          # 0-1 float  → shown as "NaN%" without this
-        "price": summary.get("grand_total_inr", 0),         # grand total ₹
-        "technical_matches": line_items,                    # list length → "Matched Products"
+    return {
+        "final_response":    final_response,
+        "pdf_available":     final_state.get("pdf_bytes") is not None,
+        "source":            source_info,
+        "score":             normalised_score,
+        "price":             summary.get("grand_total_inr", 0),
+        "technical_matches": line_items,
         "detailed_score": {
             "recommendation": bid_viability.get("recommendation", "N/A"),
             "component_scores": {
-                "technical_match": avg_tech_match,          # 0-100 → shown as "0%" without this
+                "technical_match": avg_tech_match,
                 **component_scores,
             },
         },
-
-        # ── Legacy fallback ──
-        "rfp": structured_rfp,
     }
-
-    return result
 
 
 @app.route('/')
@@ -161,16 +162,12 @@ def index():
 
 @app.route("/api/agents/all")
 def get_all_agents():
-    """Fetch agent outputs from Supabase, fallback to local JSON files."""
     from services.supabase_client import get_from_table
-
     agents = {}
-
-    # --- Try Supabase first ---
     try:
         scoring = get_from_table("scoring_results")
         if scoring:
-            agents["scoring_agent"] = scoring[-1]  # latest
+            agents["scoring_agent"] = scoring[-1]
 
         tenders = get_from_table("tenders")
         if tenders:
@@ -191,9 +188,7 @@ def get_all_agents():
         if pricing:
             agents["pricing_agent"] = pricing[-1].get("full_output", pricing[-1])
     except Exception as e:
-        print(f"⚠️  Supabase fetch failed, falling back to local: {e}")
-
-
+        print(f"⚠️  Supabase fetch failed: {e}")
 
     return jsonify(agents)
 
@@ -205,24 +200,42 @@ def agents_all_page():
 
 @app.route('/api/analyze-url', methods=['POST'])
 def analyze_url():
+    """
+    Accepts:
+      { "urls": ["https://site1.com", "https://site2.com"] }  ← multi-URL (new)
+      { "url": "https://site1.com" }                          ← single URL (legacy)
+
+    The sales agent scrapes ALL provided URLs, pools every tender found,
+    filters to 3-month window, selects the single best one across all sources.
+    """
     try:
         data = request.get_json()
-        if not data or 'url' not in data:
-            return jsonify({'error': 'URL is required'}), 400
+        if not data:
+            return jsonify({'error': 'Request body is required'}), 400
 
-        scraped_data = scrape_tender_url(data['url'])
-        tender_text = scraped_data['raw_content']
+        # Normalise input
+        if 'urls' in data and isinstance(data['urls'], list):
+            urls = [u.strip() for u in data['urls'] if u.strip()]
+        elif 'url' in data and data['url']:
+            urls = [data['url'].strip()]
+        else:
+            return jsonify({'error': 'Provide "urls" (array) or "url" (string)'}), 400
+
+        if not urls:
+            return jsonify({'error': 'At least one URL is required'}), 400
 
         source_info = {
-            'type': 'url',
-            'url': data['url'],
-            'name': data.get('name', 'Web Tender'),
-            'issuer': data.get('issuer', 'Unknown'),
-            'deadline': data.get('deadline', ''),
-            'category': data.get('category', 'General')
+            'type':      'url',
+            'urls':      urls,
+            'url':       urls[0],
+            'url_count': len(urls),
+            'name':      data.get('name', f'Web Tender ({len(urls)} source{"s" if len(urls) > 1 else ""})'),
+            'issuer':    data.get('issuer', 'Unknown'),
+            'deadline':  data.get('deadline', ''),
+            'category':  data.get('category', 'General'),
         }
 
-        result = process_tender_data(tender_text, source_info)
+        result = process_tender_urls(urls, source_info)
         result = json.loads(json.dumps(result, default=str))
         return jsonify({'success': True, 'data': result})
 
@@ -253,10 +266,10 @@ def analyze_pdf():
                 return jsonify({'error': 'Could not extract sufficient text from PDF'}), 400
 
             source_info = {
-                'type': 'pdf',
+                'type':     'pdf',
                 'filename': filename,
-                'name': request.form.get('name', filename),
-                'issuer': request.form.get('issuer', 'Unknown'),
+                'name':     request.form.get('name', filename),
+                'issuer':   request.form.get('issuer', 'Unknown'),
                 'deadline': request.form.get('deadline', ''),
                 'category': request.form.get('category', 'General')
             }
@@ -282,10 +295,7 @@ def download_report():
             return jsonify({'error': 'No data provided'}), 400
 
         from pdf_generator_v2 import generate_rfp_pdf
-
-        # Accept either new final_response structure or legacy
         rfp_data = data.get("final_response") or data
-
         pdf_bytes = generate_rfp_pdf(rfp_data)
         output_filename = f"rfp_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
 
