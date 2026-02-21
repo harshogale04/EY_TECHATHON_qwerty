@@ -255,10 +255,10 @@
             min-width: 0;
         }
 
-        .agent-icon {
+        /* .agent-icon {
             font-size: 1.1rem;
             flex-shrink: 0;
-        }
+        } */
 
         .agent-name {
             font-family: 'DM Mono', monospace;
@@ -862,13 +862,13 @@ function renderGeneric(data) {
    AGENT CONFIG — display order, icons, renderer mapping
    ═══════════════════════════════════════════════════════════════ */
 const AGENT_CONFIG = {
-    'sales_agent':           { icon: '🔍', label: 'Sales Agent',          desc: 'Tender discovery & selection',     renderer: renderSalesAgent },
-    'scoring_agent':         { icon: '📊', label: 'Scoring Agent',        desc: 'Bid viability scoring',            renderer: renderScoringAgent },
-    'master_agent_phase1':   { icon: '🎯', label: 'Master Agent — Phase 1', desc: 'RFP scoring & dispatch',        renderer: renderScoringAgent },
-    'technical_agent':       { icon: '⚙️', label: 'Technical Agent',      desc: 'SKU matching & spec comparison',  renderer: renderTechnicalAgent },
-    'pricing_agent':         { icon: '💰', label: 'Pricing Agent',        desc: 'Cost calculation & test pricing',  renderer: renderPricingAgent },
-    'master_agent_phase2':   { icon: '🏆', label: 'Master Agent — Phase 2', desc: 'Final consolidation & report',  renderer: renderMasterPhase2 },
-    'master_agent':          { icon: '📋', label: 'Master Agent',         desc: 'Full consolidated output',         renderer: renderGeneric },
+    'sales_agent':           {  label: 'Sales Agent',          desc: 'Tender discovery & selection',     renderer: renderSalesAgent },
+    'scoring_agent':         {  label: 'Scoring Agent',        desc: 'Bid viability scoring',            renderer: renderScoringAgent },
+    'master_agent_phase1':   {  label: 'Master Agent — Phase 1', desc: 'RFP scoring & dispatch',        renderer: renderScoringAgent },
+    'technical_agent':       {  label: 'Technical Agent',      desc: 'SKU matching & spec comparison',  renderer: renderTechnicalAgent },
+    'pricing_agent':         {  label: 'Pricing Agent',        desc: 'Cost calculation & test pricing',  renderer: renderPricingAgent },
+    'master_agent_phase2':   {  label: 'Master Agent — Phase 2', desc: 'Final consolidation & report',  renderer: renderMasterPhase2 },
+    'master_agent':          { label: 'Master Agent',         desc: 'Full consolidated output',         renderer: renderGeneric },
 };
 
 const ORDERED_KEYS = ['sales_agent','scoring_agent','master_agent_phase1','technical_agent','pricing_agent','master_agent_phase2','master_agent'];
@@ -893,7 +893,7 @@ function renderAgents(data) {
 
     keys.forEach((agent, i) => {
         const output = data[agent];
-        const cfg = AGENT_CONFIG[agent] || { icon: '◎', label: agent.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), desc: '', renderer: renderGeneric };
+        const cfg = AGENT_CONFIG[agent] || {label: agent.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), desc: '', renderer: renderGeneric };
 
         const hasData = output !== null && output !== undefined;
         const isError = hasData && typeof output === 'object' && output.error;
@@ -907,7 +907,7 @@ function renderAgents(data) {
         panel.innerHTML = `
             <div class="agent-header">
                 <div class="agent-name-wrap">
-                    <span class="agent-icon">${cfg.icon}</span>
+                    
                     <span class="agent-name">${cfg.label}</span>
                     <span class="agent-desc">${cfg.desc}</span>
                 </div>
