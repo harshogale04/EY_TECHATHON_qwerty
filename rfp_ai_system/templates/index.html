@@ -162,10 +162,61 @@
             pointer-events: none;
         }
 
+        /* ─── TABS ─── */
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--gold-border);
+        }
+
+        .tab {
+            padding: 1.2rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .tab:first-child { border-right: 1px solid var(--gold-border); }
+        .tab:hover { color: var(--cream); background: var(--mist); }
+
+        .tab.active {
+            color: var(--gold);
+            background: var(--gold-dim);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: var(--gold);
+        }
+
+        .tab-dot {
+            display: inline-block;
+            width: 5px; height: 5px;
+            background: currentColor;
+            border-radius: 50%;
+            margin-right: 0.6rem;
+            vertical-align: middle;
+            margin-bottom: 1px;
+        }
+
         /* ─── FORM AREA ─── */
-        .form-area {
+        .tab-content {
+            display: none;
             padding: 2.5rem;
         }
+
+        .tab-content.active { display: block; }
 
         .form-group {
             margin-bottom: 1.5rem;
@@ -310,6 +361,70 @@
             margin-bottom: 0;
         }
 
+        /* ─── FILE UPLOAD ─── */
+        .drop-zone {
+            position: relative;
+            border: 1px dashed rgba(201,168,76,0.3);
+            border-radius: 2px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: var(--ink-3);
+            overflow: hidden;
+        }
+
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .drop-zone:hover::before,
+        .drop-zone.over::before { opacity: 1; }
+
+        .drop-zone:hover,
+        .drop-zone.over {
+            border-color: var(--gold);
+        }
+
+        .drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .drop-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            display: block;
+            opacity: 0.5;
+        }
+
+        .drop-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-weight: 300;
+        }
+
+        .drop-label strong {
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        .file-chosen {
+            margin-top: 0.75rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--gold);
+        }
+
         /* ─── SUBMIT BUTTON ─── */
         .btn-submit {
             display: flex;
@@ -364,7 +479,7 @@
 
         .arrow { font-size: 1rem; }
 
-        /* ─── URL SUMMARY CHIPS (shown in loading/results) ─── */
+        /* ─── URL SUMMARY CHIPS ─── */
         .url-chips {
             display: flex;
             flex-wrap: wrap;
@@ -634,7 +749,7 @@
         @media (max-width: 680px) {
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .stat:nth-child(2) { border-right: none; }
-            .form-area { padding: 1.75rem; }
+            .tab-content { padding: 1.75rem; }
             .results-head { flex-direction: column; align-items: flex-start; }
             .score-wrap { text-align: left; }
             .score-num { font-size: 2.5rem; }
@@ -667,8 +782,18 @@
 
         <div class="error-bar" id="errorBar"></div>
 
-        <!-- Form -->
-        <div class="form-area" id="formArea">
+        <!-- Tabs -->
+        <div class="tabs" id="tabsBar">
+            <button class="tab active" data-tab="url">
+                <span class="tab-dot"></span>Analyze URL
+            </button>
+            <button class="tab" data-tab="pdf">
+                <span class="tab-dot"></span>Upload PDF
+            </button>
+        </div>
+
+        <!-- URL Tab -->
+        <div class="tab-content active" id="urlTab">
             <form id="urlForm">
                 <div class="form-group">
                     <div class="label-row">
@@ -689,6 +814,25 @@
 
                 <button type="submit" class="btn-submit" id="submitBtn">
                     <span id="submitLabel">Run Analysis</span>
+                    <span class="arrow">→</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- PDF Tab -->
+        <div class="tab-content" id="pdfTab">
+            <form id="pdfForm">
+                <div class="form-group">
+                    <label>Tender Document <span class="req">*</span></label>
+                    <div class="drop-zone" id="dropZone">
+                        <input type="file" id="pdfFile" accept=".pdf" required>
+                        <span class="drop-icon">⬆</span>
+                        <div class="drop-label"><strong>Drop PDF here</strong> or click to browse</div>
+                        <div class="file-chosen" id="fileName"></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <span>Run Analysis</span>
                     <span class="arrow">→</span>
                 </button>
             </form>
@@ -754,6 +898,47 @@
     let analysisData = null;
     let urlCounter = 0;
 
+    // ─── TABS ───────────────────────────────────────────────────
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const t = tab.dataset.tab;
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(t + 'Tab').classList.add('active');
+            clearError();
+        });
+    });
+
+    // ─── FILE UPLOAD ─────────────────────────────────────────────
+    const dropZone = document.getElementById('dropZone');
+    const pdfFile  = document.getElementById('pdfFile');
+    const fileName = document.getElementById('fileName');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => {
+        dropZone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); });
+    });
+
+    ['dragenter', 'dragover'].forEach(e =>
+        dropZone.addEventListener(e, () => dropZone.classList.add('over'))
+    );
+    ['dragleave', 'drop'].forEach(e =>
+        dropZone.addEventListener(e, () => dropZone.classList.remove('over'))
+    );
+
+    dropZone.addEventListener('drop', e => {
+        if (e.dataTransfer.files.length) {
+            pdfFile.files = e.dataTransfer.files;
+            updateFile();
+        }
+    });
+
+    pdfFile.addEventListener('change', updateFile);
+
+    function updateFile() {
+        fileName.textContent = pdfFile.files.length ? `[ ${pdfFile.files[0].name} ]` : '';
+    }
+
     // ─── URL ROW MANAGEMENT ───────────────────────────────────────
 
     function createUrlRow(index) {
@@ -787,7 +972,7 @@
 
     function removeUrlRow(row) {
         const list = document.getElementById('urlList');
-        if (list.children.length <= 1) return; // always keep at least 1
+        if (list.children.length <= 1) return;
         row.remove();
         reindexRows();
         updateUI();
@@ -810,12 +995,10 @@
         const count = document.querySelectorAll('#urlList .url-row').length;
         document.getElementById('urlCountDisplay').textContent = count;
 
-        // Show/hide remove buttons — hide when only 1 row
         document.querySelectorAll('.btn-remove-url').forEach(btn => {
             btn.style.visibility = count > 1 ? 'visible' : 'hidden';
         });
 
-        // Update submit label
         const urls = getUrls();
         const n = urls.length || count;
         document.getElementById('submitLabel').textContent =
@@ -827,11 +1010,9 @@
     updateUI();
 
     document.getElementById('addUrlBtn').addEventListener('click', addUrlRow);
-
-    // Live update submit label as user types
     document.getElementById('urlList').addEventListener('input', updateUI);
 
-    // ─── FORM SUBMIT ──────────────────────────────────────────────
+    // ─── FORM SUBMITS ─────────────────────────────────────────────
 
     document.getElementById('urlForm').addEventListener('submit', async e => {
         e.preventDefault();
@@ -842,7 +1023,6 @@
             return;
         }
 
-        // Basic URL validation
         for (const url of urls) {
             try { new URL(url); } catch {
                 showError(`Invalid URL: ${url}`);
@@ -850,16 +1030,9 @@
             }
         }
 
-        await runAnalysis(urls);
-    });
-
-    // ─── ANALYSIS ────────────────────────────────────────────────
-
-    async function runAnalysis(urls) {
-        hideForm();
+        hideTabs();
         clearError();
 
-        // Show URL chips in loading state
         const chips = document.getElementById('loadingUrlChips');
         chips.innerHTML = urls.map(u => `
             <span class="url-chip">⬡ ${truncateUrl(u)}</span>
@@ -874,27 +1047,69 @@
             const res = await fetch('/api/analyze-url', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ urls })           // ← send array
+                body: JSON.stringify({ urls })
             });
             const json = await res.json();
             if (json.success) {
                 analysisData = json.data;
                 showResults(json.data, urls);
             } else {
-                showForm();
+                showTabs();
                 showError(json.error || 'Analysis failed.');
             }
         } catch (err) {
-            showForm();
+            showTabs();
             showError('Network error: ' + err.message);
         } finally {
             hideLoading();
         }
-    }
+    });
+
+    document.getElementById('pdfForm').addEventListener('submit', async e => {
+        e.preventDefault();
+
+        if (!pdfFile.files.length) {
+            showError('Please select a PDF file.');
+            return;
+        }
+
+        hideTabs();
+        clearError();
+
+        const chips = document.getElementById('loadingUrlChips');
+        chips.innerHTML = `<span class="url-chip">⬡ ${pdfFile.files[0].name}</span>`;
+        document.getElementById('loadingUrlCount').textContent = 1;
+        document.getElementById('loadingPlural').textContent = '';
+
+        showLoading();
+
+        try {
+            const fd = new FormData();
+            fd.append('file', pdfFile.files[0]);
+
+            const res = await fetch('/api/analyze-pdf', {
+                method: 'POST',
+                body: fd
+            });
+            const json = await res.json();
+            if (json.success) {
+                analysisData = json.data;
+                showResults(json.data, [pdfFile.files[0].name]);
+            } else {
+                showTabs();
+                showError(json.error || 'Analysis failed.');
+            }
+        } catch (err) {
+            showTabs();
+            showError('Network error: ' + err.message);
+        } finally {
+            hideLoading();
+        }
+    });
 
     // ─── RESULTS ─────────────────────────────────────────────────
 
-    function showResults(d, urls) {
+    function showResults(d, sources) {
         const score = Math.round(d.score * 100);
         const scoreEl = document.getElementById('overallScore');
         scoreEl.textContent = score + '%';
@@ -918,11 +1133,9 @@
         else if (rec.includes('REVIEW')) recEl.classList.add('warning');
         else if (rec.includes('NOT')) recEl.classList.add('danger');
 
-        // Show source URL chips in results header
         const resultChips = document.getElementById('resultUrlChips');
-        const displayUrls = urls || (d.source?.urls ?? []);
-        resultChips.innerHTML = displayUrls.map((u, i) => `
-            <span class="url-chip">⬡ URL ${i+1}: ${truncateUrl(u)}</span>
+        resultChips.innerHTML = (sources || []).map((u, i) => `
+            <span class="url-chip">⬡ ${i > 0 ? 'URL ' + (i+1) + ': ' : ''}${truncateUrl(u)}</span>
         `).join('');
 
         document.getElementById('results').classList.add('show');
@@ -965,13 +1178,23 @@
         document.querySelectorAll('.stat').forEach(s => s.classList.remove('visible'));
         clearError();
 
-        // Reset URL list to a single empty row
+        // Reset URL tab
         document.getElementById('urlList').innerHTML = '';
         urlCounter = 0;
         addUrlRow();
         updateUI();
 
-        showForm();
+        // Reset PDF tab
+        document.getElementById('pdfForm').reset();
+        fileName.textContent = '';
+
+        // Switch back to URL tab
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+        document.querySelector('[data-tab="url"]').classList.add('active');
+        document.getElementById('urlTab').classList.add('active');
+
+        showTabs();
     });
 
     // ─── HELPERS ─────────────────────────────────────────────────
@@ -986,15 +1209,30 @@
         }
     }
 
-    function showForm()    { document.getElementById('formArea').style.display = ''; }
-    function hideForm()    { document.getElementById('formArea').style.display = 'none'; }
     function showLoading() { document.getElementById('loading').classList.add('show'); }
     function hideLoading() { document.getElementById('loading').classList.remove('show'); }
+
+    function hideTabs() {
+        document.getElementById('tabsBar').style.opacity = '0.3';
+        document.getElementById('tabsBar').style.pointerEvents = 'none';
+        document.querySelectorAll('.tab-content').forEach(x => x.style.display = 'none');
+    }
+
+    function showTabs() {
+        document.getElementById('tabsBar').style.opacity = '';
+        document.getElementById('tabsBar').style.pointerEvents = '';
+        // Restore the active tab
+        document.querySelectorAll('.tab-content').forEach(x => x.style.display = '');
+        const activeTab = document.querySelector('.tab.active')?.dataset.tab;
+        if (activeTab) document.getElementById(activeTab + 'Tab').style.display = 'block';
+    }
 
     function showError(msg) {
         const el = document.getElementById('errorBar');
         el.textContent = '⚠ ' + msg;
         el.classList.add('show');
+        el.style.margin = '0 0';
+        el.style.marginBottom = '0';
     }
 
     function clearError() {
